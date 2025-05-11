@@ -1,5 +1,6 @@
 package com.onixx.apolloveiculos.api.Controllers;
 
+import com.onixx.apolloveiculos.api.DTO.ResponseAnyDTO;
 import com.onixx.apolloveiculos.api.Domains.User.*;
 import com.onixx.apolloveiculos.api.Infra.Security.TokenService;
 import com.onixx.apolloveiculos.api.Repositories.UserRepository;
@@ -45,14 +46,14 @@ public class UserController {
 //    }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@Valid @RequestBody UserRegisterDTO user) {
-        if (repository.findByName(user.name()) != null || repository.findByEmail(user.email()) != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    public ResponseEntity<ResponseAnyDTO> register(@Valid @RequestBody UserRegisterDTO user) {
+        if (repository.findByEmail(user.email()) != null || repository.findByName(user.name()) != null) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ResponseAnyDTO(400, "usuário já cadastrado com esse nome ou email", null));
         }
         String encryptedPassword = new BCryptPasswordEncoder().encode(user.password());
         UserRoles role = user.role() != null ? user.role() : UserRoles.ROLE_USER;
         User newUser = new User(user.name(), user.email(), encryptedPassword, role);
         repository.save(newUser);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new ResponseAnyDTO(200, null, "usuário cadastrado com sucesso"));
     }
 }

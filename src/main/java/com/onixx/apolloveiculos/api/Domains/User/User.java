@@ -31,21 +31,16 @@ public class User extends Standard implements UserDetails {
     @Column(name = "id_user")
     private Long id_user;
 
-    @Column(name = "name")
-    @NotNull
-    @NotBlank(message = "O nome não pode ser vazio")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "email")
-    @NotBlank(message = "O email não pode ser vazio")
+    @Column(name = "email", nullable = false)
     private String email = "";
 
-    @Column(name = "password")
-    @NotNull
-    @NotBlank(message = "A senha não pode ser vazio")
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "role")
+    @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRoles role= UserRoles.ROLE_USER;
 
