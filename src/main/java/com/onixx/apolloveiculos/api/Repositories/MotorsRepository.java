@@ -16,7 +16,7 @@ import java.util.List;
 public  interface MotorsRepository extends JpaRepository<Motors, Integer> {
     Motors findByName(String name);
 
-    @Query("SELECT m FROM Motors m WHERE m.id_motors = :id")
+    @Query("SELECT m FROM Motors m WHERE m.id_motor = :id")
     Motors findByIdMotors(@Param("id") Long id);
 
     @Query("SELECT m FROM Motors m WHERE " +
