@@ -1,7 +1,7 @@
 package com.onixx.apolloveiculos.api.Domains.Models;
 
 import com.onixx.apolloveiculos.api.Domains.Marks.Mark;
-import com.onixx.apolloveiculos.api.Domains.Standard;
+import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

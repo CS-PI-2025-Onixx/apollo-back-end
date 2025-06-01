@@ -1,10 +1,8 @@
 package com.onixx.apolloveiculos.api.Domains.Motors;
 
-import com.onixx.apolloveiculos.api.Domains.Standard;
+import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -13,12 +11,15 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@SQLDelete(sql="UPDATE tb_motors SET dt_delete = CURRENT_TIMESTAMP WHERE id_motors = ?")
+@RequiredArgsConstructor
+@SQLDelete(sql="UPDATE tb_motors SET dt_delete = CURRENT_TIMESTAMP, status='deactive' WHERE id_motors = ?")
 @Where(clause = "dt_delete is NULL")
+
 public class Motors extends Standard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_motors;
-    @Column(name="name")
+    @Column(name="name", nullable = false)
+    @NonNull
     private String name;
 }
