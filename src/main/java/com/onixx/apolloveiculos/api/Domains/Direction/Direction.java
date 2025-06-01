@@ -1,6 +1,6 @@
 package com.onixx.apolloveiculos.api.Domains.Direction;
 
-import com.onixx.apolloveiculos.api.Domains.Standard;
+import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

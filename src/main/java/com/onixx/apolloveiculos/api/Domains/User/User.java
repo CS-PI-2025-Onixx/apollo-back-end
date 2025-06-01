@@ -1,13 +1,11 @@
 package com.onixx.apolloveiculos.api.Domains.User;
 
-import com.onixx.apolloveiculos.api.Domains.Standard;
+import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.security.core.GrantedAuthority;

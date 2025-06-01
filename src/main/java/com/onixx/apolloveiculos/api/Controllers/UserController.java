@@ -14,6 +14,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+
 @RestController
 @RequestMapping(value = "/auth")
 public class UserController {
@@ -48,12 +50,12 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<ResponseAnyDTO> register(@Valid @RequestBody UserRegisterDTO user) {
         if (repository.findByEmail(user.email()) != null || repository.findByName(user.name()) != null) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ResponseAnyDTO(400, "usuário já cadastrado com esse nome ou email", null));
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ResponseAnyDTO(400, "usuário já cadastrado com esse nome ou email", null,Collections.emptyList()));
         }
         String encryptedPassword = new BCryptPasswordEncoder().encode(user.password());
         UserRoles role = user.role() != null ? user.role() : UserRoles.ROLE_USER;
         User newUser = new User(user.name(), user.email(), encryptedPassword, role);
         repository.save(newUser);
-        return ResponseEntity.ok().body(new ResponseAnyDTO(200, null, "usuário cadastrado com sucesso"));
+        return ResponseEntity.ok().body(new ResponseAnyDTO(200, null, "usuário cadastrado com sucesso", Collections.emptyList()));
     }
 }

@@ -1,5 +1,6 @@
 package com.onixx.apolloveiculos.api.Infra.Security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,9 +33,33 @@ public class SecurityConfigurations {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+                        .requestMatchers(HttpMethod.GET, "/motors/fetch").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/motors/fetch-by-filters").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/colors/fetch").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/colors/fetch-by-filters").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/fuel/fetch").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/fuel/fetch-by-filters").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cars").permitAll()
+
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/user/edit").authenticated()
+                        /*Admin Routes */
+                        .requestMatchers(HttpMethod.POST, "/motors/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/motors/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/motors/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
+                ).exceptionHandling(exceptionHandling -> exceptionHandling
+                        .accessDeniedHandler((request, response, ex) -> {
+                            response.setContentType("application/json");
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.getWriter().write("{\"status\": 403, \"error\": \"Proibido\", \"message\": \"Acesso negado: voce nao tem permissao para acessar este recurso\"}");
+                        })
+                        .authenticationEntryPoint((request, response, ex) -> {
+                            response.setContentType("application/json");
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.getWriter().write("{\"status\": 401, \"error\": \"Nao Autorizado\", \"message\": \"Voce precisa estar autenticado para acessar este recurso\"}");
+                        })
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

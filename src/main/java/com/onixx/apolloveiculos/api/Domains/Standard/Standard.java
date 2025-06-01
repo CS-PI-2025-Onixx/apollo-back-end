@@ -1,4 +1,4 @@
-package com.onixx.apolloveiculos.api.Domains;
+package com.onixx.apolloveiculos.api.Domains.Standard;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -16,6 +16,10 @@ public abstract class Standard {
 
     @Column(name = "dt_delete")
     private LocalDateTime dt_delete;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.active;
 
     @PrePersist
     protected void onCreate() {
