@@ -12,13 +12,13 @@ import org.hibernate.annotations.Where;
 @AllArgsConstructor
 @Data
 @RequiredArgsConstructor
-@SQLDelete(sql="UPDATE tb_motors SET dt_delete = CURRENT_TIMESTAMP, status='deactive' WHERE id_motors = ?")
+@SQLDelete(sql="UPDATE tb_motors SET dt_delete = CURRENT_TIMESTAMP, status='deactive' WHERE id_motor = ?")
 @Where(clause = "dt_delete is NULL")
 
 public class Motors extends Standard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_motors;
+    private Long id_motor;
     @Column(name="name", nullable = false)
     @NonNull
     private String name;
