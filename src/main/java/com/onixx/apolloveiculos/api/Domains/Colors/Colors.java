@@ -20,7 +20,7 @@ import org.hibernate.annotations.Where;
 public class Colors extends Standard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_colors;
+    private Long id_color;
     @Column(name="name")
     private String name;
 }
