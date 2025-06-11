@@ -37,7 +37,7 @@ public class FuelsService {
         if(fuel == null){
             return false;
         }
-        fuelsRepository.delete(motor);
+        fuelsRepository.delete(fuel);
         return true;
     }
 }
