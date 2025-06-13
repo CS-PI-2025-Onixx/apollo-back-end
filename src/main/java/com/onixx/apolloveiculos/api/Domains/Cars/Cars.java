@@ -3,7 +3,7 @@ package com.onixx.apolloveiculos.api.Domains.Cars;
 import com.onixx.apolloveiculos.api.Domains.Bodywork.Bodywork;
 import com.onixx.apolloveiculos.api.Domains.Colors.Colors;
 import com.onixx.apolloveiculos.api.Domains.Direction.Direction;
-import com.onixx.apolloveiculos.api.Domains.Fuel.Fuel;
+import com.onixx.apolloveiculos.api.Domains.Fuels.Fuels;
 import com.onixx.apolloveiculos.api.Domains.Models.Models;
 import com.onixx.apolloveiculos.api.Domains.Motors.Motors;
 import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
@@ -83,7 +83,7 @@ public class Cars extends Standard {
 
     @OneToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "id_fuel")
-    private Fuel fuel;
+    private Fuels fuel;
 
     @OneToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "id_traction")

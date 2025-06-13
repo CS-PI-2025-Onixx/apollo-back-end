@@ -22,4 +22,5 @@ public class Motors extends Standard {
     @Column(name="name", nullable = false)
     @NonNull
     private String name;
+
 }
