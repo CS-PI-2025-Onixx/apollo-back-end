@@ -1,5 +1,6 @@
 package com.onixx.apolloveiculos.api.Repositories;
 import com.onixx.apolloveiculos.api.Domains.Colors.Colors;
+import com.onixx.apolloveiculos.api.Domains.Colors.ColorsDTO;
 import com.onixx.apolloveiculos.api.Domains.Motors.Motors;
 import com.onixx.apolloveiculos.api.Domains.Standard.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,9 +17,12 @@ public interface ColorsRepository extends JpaRepository<Colors, Integer> {
     @Query("SELECT c FROM Colors c WHERE c.id_color = :id")
     Colors findByIdMotors(@Param("id") Long id);
 
-    @Query("SELECT c FROM Colors c WHERE"+
+    @Query("SELECT c FROM Colors c WHERE " +
             "(:name IS NULL OR c.name = :name) AND " +
-            "(:status IS NULL OR c.status)")
+            "(:status IS NULL OR c.status = :status)")
     List<Colors> findByFilters(@Param("name") String name, @Param("status") Status status);
 
+    ColorsDTO save(ColorsDTO colorsDTO);
+
 }
+
