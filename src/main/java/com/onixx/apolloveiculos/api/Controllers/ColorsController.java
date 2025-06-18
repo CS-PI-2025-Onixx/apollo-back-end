@@ -1,7 +1,10 @@
 package com.onixx.apolloveiculos.api.Controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,5 +28,10 @@ public class ColorsController {
     @PostMapping("/create")
     public ResponseEntity<Colors> create(@Valid @RequestBody ColorsDTO color){
         return ResponseEntity.ok(colorsService.save(color));
+    }
+
+    @GetMapping("/fetch")
+    public ResponseEntity<List<Colors>> search(){
+        return ResponseEntity.ok(colorsService.search());
     }
 }

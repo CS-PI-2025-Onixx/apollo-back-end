@@ -1,5 +1,7 @@
 package com.onixx.apolloveiculos.api.Services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,5 +20,8 @@ public class ColorsService {
         return colorsRepository.save(color);
     }
 
+    public List<Colors> search(){
+        return colorsRepository.findAll();
+    }
 
 }
