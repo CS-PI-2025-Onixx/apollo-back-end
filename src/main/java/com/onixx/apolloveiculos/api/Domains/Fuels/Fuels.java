@@ -1,11 +1,12 @@
-package com.onixx.apolloveiculos.api.Domains.Fuel;
+package com.onixx.apolloveiculos.api.Domains.Fuels;
 
 import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -14,10 +15,10 @@ import org.hibernate.annotations.Where;
 @SQLDelete(sql = "UPDATE tb_fuel SET dt_delete = CURRENT_TIMESTAMP WHERE id_fuel = ?")
 @Where(clause = "dt_delete IS NULL")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Fuel extends Standard {
+public class Fuels extends Standard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_fuel")
@@ -25,4 +26,8 @@ public class Fuel extends Standard {
 
     @Column(name = "name")
     private String name;
+
+    public Fuels(String name) {
+        this.name = name;
+    }
 }
