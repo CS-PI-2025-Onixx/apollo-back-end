@@ -8,6 +8,7 @@ import com.onixx.apolloveiculos.api.Domains.Models.Models;
 import com.onixx.apolloveiculos.api.Domains.Motors.Motors;
 import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import com.onixx.apolloveiculos.api.Domains.Traction.Traction;
+import com.onixx.apolloveiculos.api.Domains.Transmissions.Transmissions;
 import com.onixx.apolloveiculos.api.Utils.ENUM_CONDITION;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -93,5 +94,7 @@ public class Cars extends Standard {
     @JoinColumn(name = "id_motor")
     private Motors motor;
 
-
+    @OneToOne(optional = false, cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_transmission")
+    private Transmissions transmission;
 }

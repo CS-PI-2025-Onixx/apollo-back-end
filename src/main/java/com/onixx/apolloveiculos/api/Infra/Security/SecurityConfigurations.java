@@ -40,6 +40,8 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/fuel/fetch").permitAll()
                         .requestMatchers(HttpMethod.GET, "/fuel/fetch-by-filters").permitAll()
                         .requestMatchers(HttpMethod.GET, "/cars").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/transmission/fetch").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/transmission/fetch-by-filters").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()

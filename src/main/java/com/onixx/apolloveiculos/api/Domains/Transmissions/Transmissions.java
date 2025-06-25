@@ -1,4 +1,4 @@
-package com.onixx.apolloveiculos.api.Domains.Transmiton;
+package com.onixx.apolloveiculos.api.Domains.Transmissions;
 
 import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import jakarta.persistence.*;
@@ -9,16 +9,16 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Entity
-@Table(name="tb_transmition")
-@SQLDelete(sql = "UPDATE tb_transmition SET dt_delete CURRENT_TIMESTAP WHERE id_transmition = ? ")
+@Table(name="tb_transmissions")
+@SQLDelete(sql = "UPDATE tb_transmissions SET dt_delete CURRENT_TIMESTAP WHERE id_transmission = ? ")
 @Where(clause = "dt_delete is NULL")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Transmition extends Standard {
+public class Transmissions extends Standard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_transmition;
+    private Long id_transmission;
     @Column(name="name")
     private String name;
 }
