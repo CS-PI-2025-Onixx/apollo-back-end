@@ -48,6 +48,12 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/motors/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/motors/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/motors/**").hasRole("ADMIN")
+
+                        /*Admin Routes color*/
+                        .requestMatchers(HttpMethod.POST, "/colors/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/colors/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/colors/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 ).exceptionHandling(exceptionHandling -> exceptionHandling
                         .accessDeniedHandler((request, response, ex) -> {
@@ -68,7 +74,7 @@ public class SecurityConfigurations {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
