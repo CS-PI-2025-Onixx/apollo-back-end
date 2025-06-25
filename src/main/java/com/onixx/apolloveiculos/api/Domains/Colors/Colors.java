@@ -20,7 +20,7 @@
     @AllArgsConstructor
     @Data
     @RequiredArgsConstructor
-    @SQLDelete(sql="UPDATE tb_colors SET dt_delete = CURRENT_TIMESTAMP WHERE id_colors = ?")
+    @SQLDelete(sql="UPDATE tb_colors SET dt_delete = CURRENT_TIMESTAMP WHERE id_color = ?")
     @Where(clause = "dt_delete is NULL")
     public class Colors extends Standard {
         @Id

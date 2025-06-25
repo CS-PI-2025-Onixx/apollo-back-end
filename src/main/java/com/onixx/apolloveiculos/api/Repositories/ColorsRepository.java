@@ -15,7 +15,7 @@ public interface ColorsRepository extends JpaRepository<Colors, Integer> {
     Colors findByName(String name);
 
     @Query("SELECT c FROM Colors c WHERE c.id_color = :id")
-    Colors findByIdMotors(@Param("id") Long id);
+    Colors findByIdColors(@Param("id") Long id);
 
     @Query("SELECT c FROM Colors c WHERE " +
             "(:name IS NULL OR c.name = :name) AND " +
