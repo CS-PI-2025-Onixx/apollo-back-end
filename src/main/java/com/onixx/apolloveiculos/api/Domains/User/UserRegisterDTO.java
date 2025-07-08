@@ -6,5 +6,7 @@ public record UserRegisterDTO(
         @NotBlank(message = "O nome/usuário é obrigatório") String name,
         @NotBlank(message = "O email não pode ser vazio") String email,
         @NotBlank(message = "A senha não pode ser vazia") String password,
+                              String fullname,
+                              String cellphone,
                               UserRoles role) {
 }

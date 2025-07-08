@@ -42,11 +42,34 @@ public class User extends Standard implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRoles role= UserRoles.ROLE_USER;
 
-    public User(String name, String email, String password, UserRoles role) {
+    @Column(name="full_name")
+    private String fullName;
+
+    @Column(name = "cep")
+    private String cep;
+
+    @Column(name="state")
+    private String state;
+
+    @Column(name="city")
+    private String city;
+
+    @Column(name="cellphone")
+    private String cellphone;
+
+    @Column(name = "date_birth")
+    private String dateBirth;
+
+    @Column(name="gender")
+    private String gender;
+
+    public User(String name, String email, String password, UserRoles role, String fullName, String cellphone) {
         this.name = name;
         this.email = email;
-        this.password = password;
         this.role = role;
+        this.fullName = fullName;
+        this.cellphone = cellphone;
+        this.password = password;
     }
 
     @Override

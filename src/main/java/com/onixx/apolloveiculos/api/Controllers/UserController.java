@@ -54,7 +54,7 @@ public class UserController {
         }
         String encryptedPassword = new BCryptPasswordEncoder().encode(user.password());
         UserRoles role = user.role() != null ? user.role() : UserRoles.ROLE_USER;
-        User newUser = new User(user.name(), user.email(), encryptedPassword, role);
+        User newUser = new User(user.name(), user.email(), encryptedPassword, role, user.fullname(), user.cellphone());
         repository.save(newUser);
         return ResponseEntity.ok().body(new ResponseAnyDTO(200, null, "usuário cadastrado com sucesso", Collections.emptyList()));
     }

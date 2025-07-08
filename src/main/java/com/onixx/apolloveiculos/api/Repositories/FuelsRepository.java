@@ -13,7 +13,7 @@ import java.util.List;
 public interface FuelsRepository extends JpaRepository<Fuels, Integer> {
     Fuels findByName(String name);
 
-    @Query("SELECT m FROM Fuels m WHERE m.id_Fuel = :id")
+    @Query("SELECT m FROM Fuels m WHERE m.id_fuel = :id")
     Fuels findByIdFuels(@Param("id") Long id);
 
     @Query("SELECT m FROM Fuels m WHERE " +
