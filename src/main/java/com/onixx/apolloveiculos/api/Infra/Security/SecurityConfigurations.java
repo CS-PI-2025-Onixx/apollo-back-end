@@ -53,6 +53,10 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/colors/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/colors/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/colors/**").hasRole("ADMIN")
+                        /*Admin Routes bodywork*/
+                        .requestMatchers(HttpMethod.POST, "/bodywork/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/bodywork/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/bodywork/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 ).exceptionHandling(exceptionHandling -> exceptionHandling

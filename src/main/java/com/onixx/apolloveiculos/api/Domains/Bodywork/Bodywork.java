@@ -2,6 +2,7 @@ package com.onixx.apolloveiculos.api.Domains.Bodywork;
 
 import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,4 +24,6 @@ public class Bodywork extends Standard {
     private Long id_bodywork;
     @Column(name="name")
     private String name;
+
+
 }
