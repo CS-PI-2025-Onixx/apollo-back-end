@@ -37,6 +37,8 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/motors/fetch-by-filters").permitAll()
                         .requestMatchers(HttpMethod.GET, "/colors/fetch").permitAll()
                         .requestMatchers(HttpMethod.GET, "/colors/fetch-by-filters").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/bodywork/fetch").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/bodywork/fetch-by-filters").permitAll()
                         .requestMatchers(HttpMethod.GET, "/fuel/fetch").permitAll()
                         .requestMatchers(HttpMethod.GET, "/fuel/fetch-by-filters").permitAll()
                         .requestMatchers(HttpMethod.GET, "/cars").permitAll()
