@@ -30,9 +30,14 @@ public class ColorsController {
     @Autowired
     private ColorsService colorsService;
     
+
     @PostMapping("/create")
-    public ResponseEntity<Colors> create(@Valid @RequestBody ColorsDTO color){
-        return ResponseEntity.ok(colorsService.save(color));
+    public
+    ResponseEntity<ResponseAnyDTO> create(@Valid @RequestBody ColorsDTO motors){
+        try {
+            colorsService.save(motors);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseAnyDTO(200, "", "Cor cadastrada com sucesso", Collections.emptyList()));
+        } catch (Exception e) { return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseAnyDTO(400, "Bad Request", e.getMessage(), Collections.emptyList()));}
     }
 
     @GetMapping("/fetch")

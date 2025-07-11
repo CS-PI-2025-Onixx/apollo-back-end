@@ -12,12 +12,14 @@ import java.util.List;
 @Repository
 public interface BodyworkRepository extends JpaRepository<Bodywork, Integer>{
     Bodywork findByName(String name);
+
     @Query("SELECT b FROM Bodywork b WHERE b.id_bodywork = :id")
     Bodywork findByIdBodywork(@Param("id") Long id);
 
-    @Query("SELECT b FROM Colors b WHERE " +
+    @Query("SELECT b FROM Bodywork b WHERE " +
             "(:name IS NULL OR b.name = :name) AND " +
             "(:status IS NULL OR b.status = :status)")
     List<Bodywork> findByFilters(@Param("name")String name, @Param("status") Status status);
+
     BodyworkDTO save(BodyworkDTO bodyworkDTO);
 }

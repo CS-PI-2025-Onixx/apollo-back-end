@@ -3,8 +3,6 @@ package com.onixx.apolloveiculos.api.Services;
 
 import com.onixx.apolloveiculos.api.Domains.Bodywork.Bodywork;
 import com.onixx.apolloveiculos.api.Domains.Bodywork.BodyworkDTO;
-import com.onixx.apolloveiculos.api.Domains.Bodywork.Bodywork;
-import com.onixx.apolloveiculos.api.Domains.Bodywork.BodyworkDTO;
 import com.onixx.apolloveiculos.api.Repositories.BodyworkRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,14 +15,14 @@ public class BodyworkService {
     private BodyworkRepository bodyworkRepository;
 
     public BodyworkService(BodyworkRepository bodyworkRepository){this.bodyworkRepository = bodyworkRepository;}
+
     public List<Bodywork> search(){return bodyworkRepository.findAll();}
 
 
-    public List<Bodywork> searchByFilters(String name, String status){
+    public List<Bodywork> searchByFilters(String name, String status) {
         Status statusEnum = (status != null && !status.isEmpty()) ? Status.valueOf(status.toUpperCase()) : null;
         return bodyworkRepository.findByFilters(name, statusEnum);
     }
-
     public void buscarPorId(Integer id) {
     }
 
