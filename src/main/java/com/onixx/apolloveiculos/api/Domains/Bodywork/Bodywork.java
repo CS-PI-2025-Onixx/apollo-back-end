@@ -2,10 +2,8 @@ package com.onixx.apolloveiculos.api.Domains.Bodywork;
 
 import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -16,11 +14,15 @@ import org.hibernate.annotations.Where;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class Bodywork extends Standard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_bodywork;
     @Column(name="name")
+    @NonNull
     private String name;
+
+
 }

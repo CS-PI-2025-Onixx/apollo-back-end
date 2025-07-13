@@ -1,7 +1,6 @@
 package com.onixx.apolloveiculos.api.Repositories;
 import com.onixx.apolloveiculos.api.Domains.Colors.Colors;
 import com.onixx.apolloveiculos.api.Domains.Colors.ColorsDTO;
-import com.onixx.apolloveiculos.api.Domains.Motors.Motors;
 import com.onixx.apolloveiculos.api.Domains.Standard.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
