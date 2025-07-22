@@ -9,7 +9,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 @Entity
-@Table(name="tb_transmissions")
+@Table(name = "tb_transmissions")
 @SQLDelete(sql = "UPDATE tb_transmissions SET dt_delete CURRENT_TIMESTAP WHERE id_transmission = ? ")
 @Where(clause = "dt_delete is NULL")
 @NoArgsConstructor
@@ -19,6 +19,10 @@ public class Transmissions extends Standard {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_transmission;
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
+
+    public Transmissions(String name) {
+        this.name = name;
+    }
 }

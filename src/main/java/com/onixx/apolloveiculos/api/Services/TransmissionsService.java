@@ -15,49 +15,49 @@ import jakarta.transaction.Transactional;
 @Component
 @Service
 public class TransmissionsService {
-    private TransmissionsRepository TransmissionsRepository;
+    private TransmissionsRepository transmissionsRepository;
 
-    public TransmissionsService(TransmissionsRepository TransmissionsRepository) {
-        this.TransmissionsRepository = TransmissionsRepository;
+    public TransmissionsService(TransmissionsRepository transmissionsRepository) {
+        this.transmissionsRepository = transmissionsRepository;
     }
 
     public List<Transmissions> search() {
-        return TransmissionsRepository.findAll();
+        return transmissionsRepository.findAll();
     }
 
     public List<Transmissions> searchByFilters(String name, String status) {
         Status statusEnum = (status != null && !status.isEmpty()) ? Status.valueOf(status.toUpperCase()) : null;
-        return TransmissionsRepository.findByFilters(name, statusEnum);
+        return transmissionsRepository.findByFilters(name, statusEnum);
     }
 
     public void buscarPorId(Integer id) {
     }
 
     @Transactional
-    public Transmissions save(TransmissionsDTO TransmissionsDTO) {
-        Transmissions transmission = new Transmissions(TransmissionsDTO.name());
-        return TransmissionsRepository.save(transmission);
+    public Transmissions save(TransmissionsDTO transmissionsDTO) {
+        Transmissions transmission = new Transmissions(transmissionsDTO.name());
+        return transmissionsRepository.save(transmission);
     }
 
     @Transactional
-    public Transmissions update(Long id, TransmissionsDTO TransmissionsDTO) {
-        Transmissions existing = TransmissionsRepository.findByIdTransmissions(id);
+    public Transmissions update(Long id, TransmissionsDTO transmissionsDTO) {
+        Transmissions existing = transmissionsRepository.findByIdTransmissions(id);
         if (existing == null) {
             new IllegalArgumentException("Transmissão não encontrado com o id" + id);
         }
 
-        existing.setName(TransmissionsDTO.name());
-        existing.setStatus(TransmissionsDTO.status());
-        return TransmissionsRepository.save(existing);
+        existing.setName(transmissionsDTO.name());
+        existing.setStatus(transmissionsDTO.status());
+        return transmissionsRepository.save(existing);
     }
 
     @Transactional
     public boolean delete(Long id) {
-        Transmissions transmission = TransmissionsRepository.findByIdTransmissions(id);
+        Transmissions transmission = transmissionsRepository.findByIdTransmissions(id);
         if (transmission == null) {
             return false;
         }
-        TransmissionsRepository.delete(transmission);
+        transmissionsRepository.delete(transmission);
         return true;
     }
 }
