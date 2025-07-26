@@ -34,8 +34,8 @@ public class ColorsService {
 
     @Transactional
     public Colors save(ColorsDTO colorsDTO) {
-        Colors motor = new Colors(colorsDTO.name());
-        return colorsRepository.save(motor);
+        Colors color = new Colors(colorsDTO.name());
+        return colorsRepository.save(color);
     }
 
     @Transactional
@@ -52,11 +52,11 @@ public class ColorsService {
 
     @Transactional
     public boolean delete(Long id) {
-        Colors motor = colorsRepository.findByIdColors(id);
-        if (motor == null) {
+        Colors color = colorsRepository.findByIdColors(id);
+        if (color == null) {
             return false;
         }
-        colorsRepository.delete(motor);
+        colorsRepository.delete(color);
         return true;
     }
 }
