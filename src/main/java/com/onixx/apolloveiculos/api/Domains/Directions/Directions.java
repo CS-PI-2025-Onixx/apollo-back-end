@@ -21,4 +21,8 @@ public class Directions extends Standard {
     private Long id_direction;
     @Column(name="name")
     private String name;
+
+    public Directions(String name) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
