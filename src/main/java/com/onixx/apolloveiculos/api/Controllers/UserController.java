@@ -1,20 +1,31 @@
 package com.onixx.apolloveiculos.api.Controllers;
 
-import com.onixx.apolloveiculos.api.DTO.ResponseAnyDTO;
-import com.onixx.apolloveiculos.api.Domains.User.*;
-import com.onixx.apolloveiculos.api.Infra.Security.TokenService;
-import com.onixx.apolloveiculos.api.Repositories.UserRepository;
-import com.onixx.apolloveiculos.api.Services.UserService;
-import jakarta.validation.Valid;
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
+import com.onixx.apolloveiculos.api.DTO.ResponseAnyDTO;
+import com.onixx.apolloveiculos.api.Domains.User.User;
+import com.onixx.apolloveiculos.api.Domains.User.UserDTO;
+import com.onixx.apolloveiculos.api.Domains.User.UserRegisterDTO;
+import com.onixx.apolloveiculos.api.Domains.User.UserResponseDTO;
+import com.onixx.apolloveiculos.api.Domains.User.UserRoles;
+import com.onixx.apolloveiculos.api.Infra.Security.TokenService;
+import com.onixx.apolloveiculos.api.Repositories.UserRepository;
+import com.onixx.apolloveiculos.api.Services.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping(value = "/auth")
@@ -57,5 +68,15 @@ public class UserController {
         User newUser = new User(user.name(), user.email(), encryptedPassword, role, user.fullname(), user.cellphone());
         repository.save(newUser);
         return ResponseEntity.ok().body(new ResponseAnyDTO(200, null, "usuário cadastrado com sucesso", Collections.emptyList()));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<ResponseAnyDTO> delete(@PathVariable Long id) {
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.ok().body(new ResponseAnyDTO(200, null, "Usuário deletado com sucesso", Collections.emptyList()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseAnyDTO(404, e.getMessage(), null, Collections.emptyList()));
+        }
     }
 }
