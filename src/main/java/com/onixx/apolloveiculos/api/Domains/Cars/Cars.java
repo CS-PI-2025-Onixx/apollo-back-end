@@ -65,36 +65,29 @@ public class Cars extends Standard {
 //    @CollectionTable(name = "tb_cars_opcionais", joinColumns = @JoinColumn(name = "id_car"))
 //    @Column(name = "opcional")
 //    private List<String> opcionais = new ArrayList<>();
+    @Column(name = "model")
+    private String model;
+    @Column(name = "color")
+    private String color;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_model")
-    private Models model;
+    @Column(name = "direction")
+    private String direction;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_color")
-    private Colors color;
+    @Column(name = "bodywork")
+    private String bodywork;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_direction")
-    private Direction direction;
+    @Column(name = "fuel")
+    private String fuel;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_bodywork")
-    private Bodywork bodywork;
+    @Column(name = "traction")
+    private String traction;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_fuel")
-    private Fuels fuel;
+    @Column(name = "motor")
+    private String motor;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_traction")
-    private Traction traction;
+    @Column(name = "transmission")
+    private String transmission;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_motor")
-    private Motors motor;
-
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_transmission")
-    private Transmissions transmission;
+    @Column(name = "brand")
+    private String brand;
 }
