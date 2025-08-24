@@ -41,9 +41,9 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/bodywork/fetch-by-filters").permitAll()
                         .requestMatchers(HttpMethod.GET, "/fuel/fetch").permitAll()
                         .requestMatchers(HttpMethod.GET, "/fuel/fetch-by-filters").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/cars").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/transmission/fetch").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/transmission/fetch-by-filters").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cars/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/transmissions/fetch").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/transmissions/fetch-by-filters").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
@@ -61,6 +61,10 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/bodywork/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/bodywork/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/bodywork/**").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/cars/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/cars/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/cars/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 ).exceptionHandling(exceptionHandling -> exceptionHandling

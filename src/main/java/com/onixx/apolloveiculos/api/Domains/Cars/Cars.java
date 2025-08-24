@@ -4,6 +4,7 @@ import com.onixx.apolloveiculos.api.Domains.Bodywork.Bodywork;
 import com.onixx.apolloveiculos.api.Domains.Colors.Colors;
 import com.onixx.apolloveiculos.api.Domains.Direction.Direction;
 import com.onixx.apolloveiculos.api.Domains.Fuels.Fuels;
+import com.onixx.apolloveiculos.api.Domains.Images.Images;
 import com.onixx.apolloveiculos.api.Domains.Models.Models;
 import com.onixx.apolloveiculos.api.Domains.Motors.Motors;
 import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
@@ -18,7 +19,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import java.awt.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_cars")
@@ -37,34 +40,30 @@ public class Cars extends Standard {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "highlighted")
-    private boolean highlighted;
-
-    @Column(name = "final_plate")
-    private Byte finalPlate;
+    @Column(name = "licensePlateEnd")
+    private Byte licensePlateEnd;
 
     @Column(name = "trade")
     private boolean trade;
 
+    @Column(name = "acceptsExchange")
+    private String acceptsExchange;
+
     @Column(name = "armored")
     private boolean armored = false;
 
-    @Column(name = "price")
-    private BigDecimal price;
+    @Column(name = "vehiclePrice")
+    private BigDecimal vehiclePrice;
 
-    @Column(name = "year", nullable = false)
+    @Column(name = "year")
     private Integer year;
 
-    @Column(name = "kilometers")
-    private Integer kilometers;
+    @Column(name = "mileage")
+    private Integer mileage;
 
-    @Column(name = "vehicle_condition")
-    String vehicleCondition = String.valueOf(ENUM_CONDITION.NOVO);
+    @Column(name = "vehicleCondition")
+    private String vehicleCondition = String.valueOf(ENUM_CONDITION.NOVO);
 
-//    @ElementCollection
-//    @CollectionTable(name = "tb_cars_opcionais", joinColumns = @JoinColumn(name = "id_car"))
-//    @Column(name = "opcional")
-//    private List<String> opcionais = new ArrayList<>();
     @Column(name = "model")
     private String model;
     @Column(name = "color")
@@ -90,4 +89,16 @@ public class Cars extends Standard {
 
     @Column(name = "brand")
     private String brand;
+
+    @Column(name ="vehicleStatus")
+    @Enumerated(EnumType.STRING)
+    private VehiclesStatus vehicleStatus = VehiclesStatus.DISPONIVEL;
+
+    @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Images> images;
+
+    @ElementCollection
+    @CollectionTable(name = "tb_cars_opcionais", joinColumns = @JoinColumn(name = "id_car"))
+    @Column(name = "opcional")
+    private List<String> opcionais;
 }
