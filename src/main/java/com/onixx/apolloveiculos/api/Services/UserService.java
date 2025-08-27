@@ -54,5 +54,17 @@ public class UserService implements UserDetailsService {
         userRepository.deleteById(user.getId_user());
         return user;
     }
+
+    @Transactional
+    private User verifyPassword(String name, String password) {
+        User user = (User) userRepository.findByName(name);
+        if (user == null) {
+            throw new IllegalArgumentException("Usuário não encontrado: " + name);
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Senha incorreta");
+        }
+        return user;
+    }
     
 }
