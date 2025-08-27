@@ -10,12 +10,14 @@ import com.onixx.apolloveiculos.api.Domains.Motors.Motors;
 import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import com.onixx.apolloveiculos.api.Domains.Traction.Traction;
 import com.onixx.apolloveiculos.api.Domains.Transmissions.Transmissions;
+import com.onixx.apolloveiculos.api.Domains.User.User;
 import com.onixx.apolloveiculos.api.Utils.ENUM_CONDITION;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -94,8 +96,18 @@ public class Cars extends Standard {
     @Enumerated(EnumType.STRING)
     private VehiclesStatus vehicleStatus = VehiclesStatus.DISPONIVEL;
 
+    @Column(name = "carType")
+    @Enumerated(EnumType.STRING)
+    private VehicleTypes carType = VehicleTypes.VENDA;
+
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Images> images;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user")
+    @JoinFormula("(SELECT u.name FROM tb_users u WHERE u.id_user = id_user)")
+    private User userName;
+
 
     @ElementCollection
     @CollectionTable(name = "tb_cars_opcionais", joinColumns = @JoinColumn(name = "id_car"))
