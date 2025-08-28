@@ -1,7 +1,7 @@
 package com.onixx.apolloveiculos.api.Utils;
 
 import com.onixx.apolloveiculos.api.Domains.Bodywork.Bodywork;
-import com.onixx.apolloveiculos.api.Domains.Direction.Direction;
+import com.onixx.apolloveiculos.api.Domains.Directions.Directions;
 import com.onixx.apolloveiculos.api.Domains.Fuels.Fuels;
 import com.onixx.apolloveiculos.api.Domains.Transmissions.Transmissions;
 import com.onixx.apolloveiculos.api.Domains.User.User;

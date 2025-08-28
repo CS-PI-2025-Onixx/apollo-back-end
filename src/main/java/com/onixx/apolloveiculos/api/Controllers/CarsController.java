@@ -73,10 +73,10 @@ public class CarsController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<ResponseAnyDTO> delete(@PathVariable Long id) {
         try {
             carService.delete(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ResponseAnyDTO(204, "", "Carro deletado com sucesso", Collections.emptyList()));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {

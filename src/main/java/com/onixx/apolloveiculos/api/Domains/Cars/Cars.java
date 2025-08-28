@@ -2,7 +2,7 @@ package com.onixx.apolloveiculos.api.Domains.Cars;
 
 import com.onixx.apolloveiculos.api.Domains.Bodywork.Bodywork;
 import com.onixx.apolloveiculos.api.Domains.Colors.Colors;
-import com.onixx.apolloveiculos.api.Domains.Direction.Direction;
+import com.onixx.apolloveiculos.api.Domains.Directions.Directions;
 import com.onixx.apolloveiculos.api.Domains.Fuels.Fuels;
 import com.onixx.apolloveiculos.api.Domains.Images.Images;
 import com.onixx.apolloveiculos.api.Domains.Models.Models;
