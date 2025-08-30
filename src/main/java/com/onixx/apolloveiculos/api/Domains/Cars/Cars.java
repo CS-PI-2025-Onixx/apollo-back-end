@@ -1,5 +1,10 @@
 package com.onixx.apolloveiculos.api.Domains.Cars;
 
+import java.math.BigDecimal;
+
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 import com.onixx.apolloveiculos.api.Domains.Bodywork.Bodywork;
 import com.onixx.apolloveiculos.api.Domains.Colors.Colors;
 import com.onixx.apolloveiculos.api.Domains.Direction.Direction;
@@ -10,15 +15,20 @@ import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import com.onixx.apolloveiculos.api.Domains.Traction.Traction;
 import com.onixx.apolloveiculos.api.Domains.Transmissions.Transmissions;
 import com.onixx.apolloveiculos.api.Utils.ENUM_CONDITION;
-import jakarta.persistence.*;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "tb_cars")
@@ -75,7 +85,7 @@ public class Cars extends Standard {
     private Colors color;
 
     @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_direction")
+    @JoinColumn(name = "id_directions")
     private Direction direction;
 
     @OneToOne(optional = false, cascade = CascadeType.ALL)

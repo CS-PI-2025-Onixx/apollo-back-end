@@ -1,16 +1,17 @@
 package com.onixx.apolloveiculos.api.Services;
 
-import com.onixx.apolloveiculos.api.Domains.User.User;
-import com.onixx.apolloveiculos.api.Repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.onixx.apolloveiculos.api.Domains.User.ChangePasswordDTO;
+import com.onixx.apolloveiculos.api.Domains.User.User;
+import com.onixx.apolloveiculos.api.Repositories.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
 @Service
@@ -31,5 +32,16 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByName(username);
+    }
+
+    @Transactional
+    public User updatePassword(String email, ChangePasswordDTO changePasswordDTO) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            user.setPassword(passwordEncoder.encode(changePasswordDTO.newPassword()));
+            return userRepository.save(user);
+        } else {
+            return null;
+        }
     }
 }
