@@ -30,6 +30,7 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping(value = "/auth")
 public class UserController {
+
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -51,17 +52,11 @@ public class UserController {
 
         return ResponseEntity.ok(new UserResponseDTO(token));
     }
-//
-//    @PostMapping("/register")
-//    public ResponseEntity<User> register(@Valid @RequestBody User user) {
-//        User createdUser = userService.createUser(user);
-//        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
-//    }
 
     @PostMapping("/register")
     public ResponseEntity<ResponseAnyDTO> register(@Valid @RequestBody UserRegisterDTO user) {
         if (repository.findByEmail(user.email()) != null || repository.findByName(user.name()) != null) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ResponseAnyDTO(400, "usuário já cadastrado com esse nome ou email", null,Collections.emptyList()));
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ResponseAnyDTO(400, "usuário já cadastrado com esse nome ou email", null, Collections.emptyList()));
         }
         String encryptedPassword = new BCryptPasswordEncoder().encode(user.password());
         UserRoles role = user.role() != null ? user.role() : UserRoles.ROLE_USER;
@@ -70,13 +65,16 @@ public class UserController {
         return ResponseEntity.ok().body(new ResponseAnyDTO(200, null, "usuário cadastrado com sucesso", Collections.emptyList()));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ResponseAnyDTO> delete(@PathVariable Long id) {
+    @DeleteMapping("/delete/{id}/{password}")
+    public ResponseEntity<ResponseAnyDTO> delete(@PathVariable Long id, @PathVariable String password) {
         try {
-            userService.deleteUser(id);
+            userService.deleteUser(id, password);
             return ResponseEntity.ok().body(new ResponseAnyDTO(200, null, "Usuário deletado com sucesso", Collections.emptyList()));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseAnyDTO(404, e.getMessage(), null, Collections.emptyList()));
+            if (e.getMessage().startsWith("Usuário não encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseAnyDTO(404, e.getMessage(), null, Collections.emptyList()));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseAnyDTO(400, e.getMessage(), null, Collections.emptyList()));
         }
     }
 }

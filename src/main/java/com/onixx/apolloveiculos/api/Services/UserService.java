@@ -16,13 +16,13 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Service
 public class UserService implements UserDetailsService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-
     @Transactional
-    public User createUser(User user){
-        if(userRepository.findByEmail(user.getEmail())!=null || userRepository.findByName(user.getName())!=null) {
+    public User createUser(User user) {
+        if (userRepository.findByEmail(user.getEmail()) != null || userRepository.findByName(user.getName()) != null) {
             throw new IllegalArgumentException("E-mail já cadastrado " + user.getEmail());
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -30,9 +30,11 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new IllegalArgumentException("Usuário não encontrado com ID: " + id);
+    public void deleteUser(Long id, String password) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com ID: " + id));
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Senha incorreta");
         }
         userRepository.deleteById(id);
     }
@@ -42,7 +44,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findByName(username);
     }
 
-        @Transactional
+    @Transactional
     public User delete(UserDTO userDTO) {
         User user = (User) userRepository.findByName(userDTO.name());
         if (user == null) {
@@ -54,17 +56,4 @@ public class UserService implements UserDetailsService {
         userRepository.deleteById(user.getId_user());
         return user;
     }
-
-    @Transactional
-    private User verifyPassword(String name, String password) {
-        User user = (User) userRepository.findByName(name);
-        if (user == null) {
-            throw new IllegalArgumentException("Usuário não encontrado: " + name);
-        }
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new IllegalArgumentException("Senha incorreta");
-        }
-        return user;
-    }
-    
 }
