@@ -2,7 +2,12 @@ package com.onixx.apolloveiculos.api.Controllers;
 
 import com.onixx.apolloveiculos.api.DTO.ResponseAnyDTO;
 import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
+import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarParams;
+import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarRequest;
 import com.onixx.apolloveiculos.api.Services.CarService;
+import com.onixx.apolloveiculos.api.Services.OLXIntegrationService;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,20 +18,22 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/cars")
 public class CarsController {
 
     @Autowired
     private CarService carService;
-
     @PostMapping
     public ResponseEntity<ResponseAnyDTO> create(
             @ModelAttribute Cars car,
-            @RequestPart(value = "car_images", required = false) List<MultipartFile> imageFiles) {
-
+            @RequestPart(value = "car_images", required = false) List<MultipartFile> imageFiles,
+            @ModelAttribute OLXCarParams olxCarParams,
+            @RequestParam(value = "publish_olx", required = false, defaultValue = "false") Boolean publishOlx
+            ) {
         try {
-            Cars savedCar = carService.create(car, imageFiles);
+            Cars savedCar = carService.create(car, imageFiles, olxCarParams, publishOlx);
             return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseAnyDTO(200, "", "Carro salvo com sucesso", Collections.emptyList()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -59,15 +66,21 @@ public class CarsController {
     @PutMapping("/{id}")
     public ResponseEntity<Cars> update(
             @PathVariable Long id,
-            @RequestPart("car") Cars carData,
-            @RequestPart(value = "images", required = false) List<MultipartFile> newImageFiles) {
-
+            @ModelAttribute Cars carData,
+            @RequestPart(value = "car_images", required = false) List<MultipartFile> newImageFiles,
+            @ModelAttribute OLXCarParams olxCarParams,
+            @RequestParam(value = "publish_olx", required = false, defaultValue = "false") Boolean publishOlx
+            ) {
         try {
-            Cars updatedCar = carService.update(id, carData, newImageFiles);
+            log.info("Atualizando carro com ID: " + id);
+            log.info("Images" + (newImageFiles != null ? newImageFiles.size() : 0) + " imagens recebidas para atualização.");
+            Cars updatedCar = carService.update(id, carData, newImageFiles, olxCarParams, publishOlx);
             return ResponseEntity.ok(updatedCar);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
+            log.info("Atualizando carro com ID: " + id);
+            log.info("Images" + (newImageFiles != null ? newImageFiles.size() : 0) + " imagens recebidas para atualização.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

@@ -23,6 +23,7 @@ import org.hibernate.annotations.Where;
 
 import java.awt.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -100,8 +101,16 @@ public class Cars extends Standard {
     @Enumerated(EnumType.STRING)
     private VehicleTypes carType = VehicleTypes.VENDA;
 
+    @Column(name = "motorPower")
+    private String motorPower;
+
+    @Column(name= "vehicleTag")
+    private String vehicleTag;
+
+
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Images> images;
+
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user")
@@ -113,4 +122,23 @@ public class Cars extends Standard {
     @CollectionTable(name = "tb_cars_opcionais", joinColumns = @JoinColumn(name = "id_car"))
     @Column(name = "opcional")
     private List<String> opcionais;
+
+    // Integration with OLX
+
+    @Column(name = "olx_ad_id")
+    private String olxAdId;
+
+    @Column(name = "olx_published")
+    private Boolean olxPublished = false;
+
+    @Column(name = "olx_published_at")
+    private LocalDateTime olxPublishedAt;
+
+    @Column(name = "olx_error")
+    private String olxError;
+
+    @Column(name = "olx_update_at")
+    private LocalDateTime olxUpdatedAt;
+    @Column(name = "olx_deleted_at")
+    private LocalDateTime olxDeletedAt;
 }

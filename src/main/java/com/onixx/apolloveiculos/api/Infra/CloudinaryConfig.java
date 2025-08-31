@@ -23,7 +23,9 @@ public class CloudinaryConfig {
         return new Cloudinary(ObjectUtils.asMap(
                 "cloud_name", cloudName,
                 "api_key", apiKey,
-                "api_secret", apiSecret
+                "api_secret", apiSecret,
+                "timeout", 60000,
+                "chunk_size", 6000000
         ));
     }
 }
