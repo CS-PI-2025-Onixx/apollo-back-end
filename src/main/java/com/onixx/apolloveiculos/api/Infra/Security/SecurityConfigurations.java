@@ -30,8 +30,8 @@ public class SecurityConfigurations {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
                         .requestMatchers(HttpMethod.GET, "/motors/fetch").permitAll()
                         .requestMatchers(HttpMethod.GET, "/motors/fetch-by-filters").permitAll()
@@ -41,12 +41,13 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/bodywork/fetch-by-filters").permitAll()
                         .requestMatchers(HttpMethod.GET, "/fuel/fetch").permitAll()
                         .requestMatchers(HttpMethod.GET, "/fuel/fetch-by-filters").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/cars").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/transmission/fetch").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/transmission/fetch-by-filters").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cars/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cars/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/transmissions/fetch").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/transmissions/fetch-by-filters").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+
                         .requestMatchers(HttpMethod.PUT, "/user/edit").authenticated()
                         /*Admin Routes */
                         .requestMatchers(HttpMethod.POST, "/motors/**").hasRole("ADMIN")
@@ -61,6 +62,10 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/bodywork/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/bodywork/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/bodywork/**").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/cars/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/cars/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/cars/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 ).exceptionHandling(exceptionHandling -> exceptionHandling
@@ -85,10 +90,13 @@ public class SecurityConfigurations {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://apollo-front-end.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {

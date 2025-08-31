@@ -1,15 +1,15 @@
 package com.onixx.apolloveiculos.api.Services;
 
+import com.onixx.apolloveiculos.api.Repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import com.onixx.apolloveiculos.api.Domains.User.User;
 import com.onixx.apolloveiculos.api.Domains.User.UserDTO;
 import com.onixx.apolloveiculos.api.Repositories.UserRepository;
-
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 
@@ -29,6 +29,7 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+
     @Transactional
     public void deleteUser(Long id, String password) {
         User user = userRepository.findById(id)
@@ -41,7 +42,11 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByName(username);
+        UserDetails user = userRepository.findByEmail(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("Usuário não encontrado: " + username);
+        }
+        return user;
     }
 
     @Transactional
@@ -57,3 +62,4 @@ public class UserService implements UserDetailsService {
         return user;
     }
 }
+

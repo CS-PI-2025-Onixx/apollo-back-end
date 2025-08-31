@@ -2,6 +2,7 @@ package com.onixx.apolloveiculos.api.Domains.Directions;
 
 import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,7 @@ public class Directions extends Standard {
     @Column(name="name")
     private String name;
 
-    public Directions(String name) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        public Directions(@NotBlank(message = "o nome da direção não pode ser vazio") String name) {
+        this.name = name;
     }
 }

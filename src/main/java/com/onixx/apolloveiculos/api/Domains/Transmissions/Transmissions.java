@@ -10,7 +10,7 @@ import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "tb_transmissions")
-@SQLDelete(sql = "UPDATE tb_transmissions SET dt_delete CURRENT_TIMESTAP WHERE id_transmission = ? ")
+@SQLDelete(sql = "UPDATE tb_transmissions SET dt_delete = CURRENT_TIMESTAMP WHERE id_transmission = ? ")
 @Where(clause = "dt_delete is NULL")
 @NoArgsConstructor
 @AllArgsConstructor
