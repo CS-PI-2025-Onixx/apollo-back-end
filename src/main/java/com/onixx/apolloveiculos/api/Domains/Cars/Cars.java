@@ -1,5 +1,6 @@
 package com.onixx.apolloveiculos.api.Domains.Cars;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.onixx.apolloveiculos.api.Domains.Bodywork.Bodywork;
 import com.onixx.apolloveiculos.api.Domains.Colors.Colors;
 import com.onixx.apolloveiculos.api.Domains.Directions.Directions;
@@ -109,6 +110,7 @@ public class Cars extends Standard {
 
 
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Images> images;
 
 
@@ -121,6 +123,7 @@ public class Cars extends Standard {
     @ElementCollection
     @CollectionTable(name = "tb_cars_opcionais", joinColumns = @JoinColumn(name = "id_car"))
     @Column(name = "opcional")
+    @JsonManagedReference
     private List<String> opcionais;
 
     // Integration with OLX

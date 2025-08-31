@@ -42,6 +42,7 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/fuel/fetch").permitAll()
                         .requestMatchers(HttpMethod.GET, "/fuel/fetch-by-filters").permitAll()
                         .requestMatchers(HttpMethod.GET, "/cars/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cars/search").permitAll()
                         .requestMatchers(HttpMethod.GET, "/transmissions/fetch").permitAll()
                         .requestMatchers(HttpMethod.GET, "/transmissions/fetch-by-filters").permitAll()
 

@@ -2,6 +2,8 @@ package com.onixx.apolloveiculos.api.Controllers;
 
 import com.onixx.apolloveiculos.api.DTO.ResponseAnyDTO;
 import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
+import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
+import com.onixx.apolloveiculos.api.Domains.Cars.VehiclesStatus;
 import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarParams;
 import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarRequest;
 import com.onixx.apolloveiculos.api.Services.CarService;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -63,25 +66,23 @@ public class CarsController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Cars> update(
+    @PostMapping("/{id}")
+    public ResponseEntity<ResponseAnyDTO> update(
             @PathVariable Long id,
             @ModelAttribute Cars carData,
             @RequestPart(value = "car_images", required = false) List<MultipartFile> newImageFiles,
-            @ModelAttribute OLXCarParams olxCarParams,
             @RequestParam(value = "publish_olx", required = false, defaultValue = "false") Boolean publishOlx
-            ) {
+    ) {
         try {
-            log.info("Atualizando carro com ID: " + id);
-            log.info("Images" + (newImageFiles != null ? newImageFiles.size() : 0) + " imagens recebidas para atualização.");
-            Cars updatedCar = carService.update(id, carData, newImageFiles, olxCarParams, publishOlx);
-            return ResponseEntity.ok(updatedCar);
+            Cars updatedCar = carService.update(id, carData, newImageFiles, null, publishOlx);
+            return ResponseEntity.ok().body(new ResponseAnyDTO(200, "", "Carro atualizado com sucesso", updatedCar));
         } catch (RuntimeException e) {
+            log.error("Erro de runtime ao atualizar carro: ", e);
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            log.info("Atualizando carro com ID: " + id);
-            log.info("Images" + (newImageFiles != null ? newImageFiles.size() : 0) + " imagens recebidas para atualização.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("Erro ao atualizar carro: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseAnyDTO(500, "", "Erro interno do servidor", null));
         }
     }
 
@@ -98,23 +99,34 @@ public class CarsController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Cars>> findByFilters(
+    public ResponseEntity<ResponseAnyDTO> findByFilters(
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) String model,
             @RequestParam(required = false) String color,
             @RequestParam(required = false) Integer yearMin,
             @RequestParam(required = false) Integer yearMax,
+            @RequestParam(required = false) Integer mileageMin,
+            @RequestParam(required = false) Integer mileageMax,
             @RequestParam(required = false) BigDecimal priceMin,
             @RequestParam(required = false) BigDecimal priceMax,
-            @RequestParam(required = false) String fuel,
-            @RequestParam(required = false) String vehicleCondition) {
+            @RequestParam(required = false) List<String> fuel,
+            @RequestParam(required = false) List<String> bodywork,
+            @RequestParam(required = false) List<String> transmission,
+            @RequestParam(required = false) List<String> direction,
+            @RequestParam(required = false) String vehicleCondition,
+            @RequestParam(required = false) String carType) {
 
         try {
+            log.info("=== INICIANDO BUSCA DE CARROS ===");
+            log.info("Parâmetros recebidos: carType={}, brand={}, model={}", carType, brand, model);
+
             List<Cars> cars = carService.findByFilters(
                     brand, model, color, yearMin, yearMax,
-                    priceMin, priceMax, fuel, vehicleCondition
+                    mileageMin, mileageMax,priceMin, priceMax, fuel,bodywork, transmission, direction, vehicleCondition, carType
             );
-            return ResponseEntity.ok(cars);
+            log.info("Resultado da busca: {} carros encontrados", cars != null ? cars.size() : 0);
+
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseAnyDTO(200, "", "Carros encontrados com sucesso", cars));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -132,4 +144,5 @@ public class CarsController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 }

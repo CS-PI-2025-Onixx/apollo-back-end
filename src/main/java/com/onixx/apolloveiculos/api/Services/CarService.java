@@ -3,6 +3,7 @@ package com.onixx.apolloveiculos.api.Services;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
+import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
 import com.onixx.apolloveiculos.api.Domains.Images.Images;
 import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarParams;
 import com.onixx.apolloveiculos.api.Events.CarDeletedEvent;
@@ -39,8 +40,6 @@ public class CarService {
 
     public Cars create(Cars car, List<MultipartFile> imageFiles, OLXCarParams olxCarParams, boolean publishOlx) {
         Cars savedCar = carsRepository.save(car);
-        log.info("Carro salvo com ID: " + savedCar.getId_car());
-        log.info("Processando upload de imagens..." + (imageFiles != null ? imageFiles.size() : 0) + " imagens recebidas.");
         if (imageFiles != null && !imageFiles.isEmpty()) {
             List<String> imageUrls = uploadImagesToCloudinary(imageFiles);
             saveCarImages(savedCar, imageUrls);
@@ -62,49 +61,25 @@ public class CarService {
     }
 
     public Cars update(Long id, Cars carData, List<MultipartFile> newImageFiles, OLXCarParams olxCarParams, boolean publishOlx) {
-        Cars existingCar = carsRepository.findbyIdCar(id);
+        Cars existingCar = carsRepository.findbyIdCar(id); // Use o método SEM imagens aqui
         if (existingCar == null) {
             throw new RuntimeException("Carro não encontrado");
         }
-        log.warn("Carro atualização" + carData);
-        log.warn("Carro No banco" + existingCar);
-
 
         updateCarData(existingCar, carData);
 
-        carData.setId_car(id);
-
         Cars updatedCar = carsRepository.save(existingCar);
 
-
-         /* Código precisa de analise, pois se eu cadastrar uma imagem nova no front end
-         não vai vir o img_url, por enquanto no front vou enviar apenas imagens novas
-         não sendo possível editar as imagens que já foram cadastradas
-            if (carData.getImages() != null) {
-                List<String> newImageUrls = carData.getImages().stream()
-                        .map(Images::getImg_url)
-                        .toList();
-
-                existingCar.getImages().stream()
-                        .filter(image -> !newImageUrls.contains(image.getImg_url()))
-                        .forEach(image -> {
-                            deleteImageFromCloudinary(image.getImg_url());
-                            imageService.delete(image);
-                        });
-            }
-         * */
         if (newImageFiles != null && !newImageFiles.isEmpty()) {
             List<String> newImageUrls = uploadImagesToCloudinary(newImageFiles);
             saveCarImages(updatedCar, newImageUrls);
         }
 
-        // Publicar evento para atualizar na OLX (se já estava publicado)
         if (updatedCar.getOlxPublished() != null && updatedCar.getOlxPublished() && publishOlx) {
             eventPublisher.publishEvent(new CarUpdatedEvent(this, updatedCar, olxCarParams));
         }
 
-
-        return carsRepository.findByIdCarWithImages(updatedCar.getId_car());
+        return updatedCar;
     }
 
     public void delete(Long id) {
@@ -128,20 +103,29 @@ public class CarService {
     }
 
     public List<Cars> findByFilters(String brand, String model, String color,
-                                   Integer yearMin, Integer yearMax,
-                                   BigDecimal priceMin, BigDecimal priceMax,
-                                   String fuel, String vehicleCondition) {
-        return carsRepository.findAll().stream()
-                .filter(car -> brand == null || car.getBrand().toLowerCase().contains(brand.toLowerCase()))
-                .filter(car -> model == null || car.getModel().toLowerCase().contains(model.toLowerCase()))
-                .filter(car -> color == null || car.getColor().toLowerCase().contains(color.toLowerCase()))
-                .filter(car -> yearMin == null || car.getYear() >= yearMin)
-                .filter(car -> yearMax == null || car.getYear() <= yearMax)
-                .filter(car -> priceMin == null || car.getVehiclePrice().compareTo(priceMin) >= 0)
-                .filter(car -> priceMax == null || car.getVehiclePrice().compareTo(priceMax) <= 0)
-                .filter(car -> fuel == null || car.getFuel().toLowerCase().contains(fuel.toLowerCase()))
-                .filter(car -> vehicleCondition == null || car.getVehicleCondition().equals(vehicleCondition))
-                .toList();
+                                    Integer yearMin, Integer yearMax, Integer milageMin, Integer mileageMax,
+                                    BigDecimal priceMin, BigDecimal priceMax,
+                                    List<String> fuel,List<String> bodywork, List<String> transmission, List<String> direction,  String vehicleCondition, String carType) {
+
+        try {
+            VehicleTypes carTypeEnum = null;
+            if (carType != null && !carType.trim().isEmpty()) {
+                try {
+                    carTypeEnum = VehicleTypes.valueOf(carType.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    return new ArrayList<>();
+                }
+            }
+
+            List<Cars> result = carsRepository.findByFilters(brand, model, color, yearMin, yearMax, milageMin, mileageMax,
+                    priceMin, priceMax, fuel,bodywork, transmission,direction, vehicleCondition, carTypeEnum);
+
+            log.info("SERVICE: Repository retornou {} registros", result.size());
+            return result;
+        } catch (Exception e) {
+            log.error("SERVICE: Erro na consulta: ", e);
+            throw e;
+        }
     }
 
 
@@ -190,7 +174,6 @@ public class CarService {
     }
 
     private String extractPublicIdFromUrl(String imageUrl) {
-        // Lógica para extrair o public_id da URL do Cloudinary
         String[] parts = imageUrl.split("/");
         String filename = parts[parts.length - 1];
         return "cars/" + filename.substring(0, filename.lastIndexOf('.'));

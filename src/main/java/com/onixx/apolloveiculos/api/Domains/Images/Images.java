@@ -1,5 +1,6 @@
 package com.onixx.apolloveiculos.api.Domains.Images;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
 import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
@@ -24,5 +25,6 @@ public class Images extends Standard {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_car", nullable = false)
     @JsonIgnore
+    @JsonBackReference
     private Cars car;
 }
