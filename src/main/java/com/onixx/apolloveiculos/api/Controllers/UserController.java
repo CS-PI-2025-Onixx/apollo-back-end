@@ -3,7 +3,6 @@ package com.onixx.apolloveiculos.api.Controllers;
 import com.onixx.apolloveiculos.api.DTO.ResponseAnyDTO;
 import com.onixx.apolloveiculos.api.Domains.User.*;
 import com.onixx.apolloveiculos.api.Services.AuthService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -17,12 +16,30 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+import java.util.Collections;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.onixx.apolloveiculos.api.Services.UserService;
+
 @RestController
 @RequestMapping("/auth")
 public class UserController {
 
     @Autowired
+    private AuthenticationManager authenticationManager;
+
+
+    @Autowired
     private AuthService authService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserDTO userDTO, HttpServletResponse response) {
@@ -72,5 +89,18 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ResponseAnyDTO(401, "Usuário não autenticado", null, null));
+    }
+
+    @DeleteMapping("/delete/{id}/{password}")
+    public ResponseEntity<ResponseAnyDTO> delete(@PathVariable Long id, @PathVariable String password) {
+        try {
+            userService.deleteUser(id, password);
+            return ResponseEntity.ok().body(new ResponseAnyDTO(200, null, "Usuário deletado com sucesso", Collections.emptyList()));
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().startsWith("Usuário não encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseAnyDTO(404, e.getMessage(), null, Collections.emptyList()));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseAnyDTO(400, e.getMessage(), null, Collections.emptyList()));
+        }
     }
 }
