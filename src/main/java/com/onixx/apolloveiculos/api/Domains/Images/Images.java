@@ -1,5 +1,7 @@
 package com.onixx.apolloveiculos.api.Domains.Images;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
 import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import jakarta.persistence.*;
@@ -20,7 +22,9 @@ public class Images extends Standard {
     private Long id_image;
     @Column(name = "img_url")
     private String img_url;
-    @OneToOne
-    @JoinColumn(name = "id_car")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_car", nullable = false)
+    @JsonIgnore
+    @JsonBackReference
     private Cars car;
 }

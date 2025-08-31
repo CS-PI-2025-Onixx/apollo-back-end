@@ -1,34 +1,31 @@
 package com.onixx.apolloveiculos.api.Domains.Cars;
 
-import java.math.BigDecimal;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.onixx.apolloveiculos.api.Domains.Bodywork.Bodywork;
 import com.onixx.apolloveiculos.api.Domains.Colors.Colors;
-import com.onixx.apolloveiculos.api.Domains.Direction.Direction;
+import com.onixx.apolloveiculos.api.Domains.Directions.Directions;
 import com.onixx.apolloveiculos.api.Domains.Fuels.Fuels;
+import com.onixx.apolloveiculos.api.Domains.Images.Images;
 import com.onixx.apolloveiculos.api.Domains.Models.Models;
 import com.onixx.apolloveiculos.api.Domains.Motors.Motors;
 import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 import com.onixx.apolloveiculos.api.Domains.Traction.Traction;
 import com.onixx.apolloveiculos.api.Domains.Transmissions.Transmissions;
+import com.onixx.apolloveiculos.api.Domains.User.User;
 import com.onixx.apolloveiculos.api.Utils.ENUM_CONDITION;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
+import java.awt.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "tb_cars")
@@ -47,64 +44,104 @@ public class Cars extends Standard {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "highlighted")
-    private boolean highlighted;
-
-    @Column(name = "final_plate")
-    private Byte finalPlate;
+    @Column(name = "licensePlateEnd")
+    private Byte licensePlateEnd;
 
     @Column(name = "trade")
     private boolean trade;
 
+    @Column(name = "acceptsExchange")
+    private String acceptsExchange;
+
     @Column(name = "armored")
     private boolean armored = false;
 
-    @Column(name = "price")
-    private BigDecimal price;
+    @Column(name = "vehiclePrice")
+    private BigDecimal vehiclePrice;
 
-    @Column(name = "year", nullable = false)
+    @Column(name = "year")
     private Integer year;
 
-    @Column(name = "kilometers")
-    private Integer kilometers;
+    @Column(name = "mileage")
+    private Integer mileage;
 
-    @Column(name = "vehicle_condition")
-    String vehicleCondition = String.valueOf(ENUM_CONDITION.NOVO);
+    @Column(name = "vehicleCondition")
+    private String vehicleCondition = String.valueOf(ENUM_CONDITION.NOVO);
 
-//    @ElementCollection
-//    @CollectionTable(name = "tb_cars_opcionais", joinColumns = @JoinColumn(name = "id_car"))
-//    @Column(name = "opcional")
-//    private List<String> opcionais = new ArrayList<>();
+    @Column(name = "model")
+    private String model;
+    @Column(name = "color")
+    private String color;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_model")
-    private Models model;
+    @Column(name = "direction")
+    private String direction;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_color")
-    private Colors color;
+    @Column(name = "bodywork")
+    private String bodywork;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_directions")
-    private Direction direction;
+    @Column(name = "fuel")
+    private String fuel;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_bodywork")
-    private Bodywork bodywork;
+    @Column(name = "traction")
+    private String traction;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_fuel")
-    private Fuels fuel;
+    @Column(name = "motor")
+    private String motor;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_traction")
-    private Traction traction;
+    @Column(name = "transmission")
+    private String transmission;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_motor")
-    private Motors motor;
+    @Column(name = "brand")
+    private String brand;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_transmission")
-    private Transmissions transmission;
+    @Column(name ="vehicleStatus")
+    @Enumerated(EnumType.STRING)
+    private VehiclesStatus vehicleStatus = VehiclesStatus.DISPONIVEL;
+
+    @Column(name = "carType")
+    @Enumerated(EnumType.STRING)
+    private VehicleTypes carType = VehicleTypes.VENDA;
+
+    @Column(name = "motorPower")
+    private String motorPower;
+
+    @Column(name= "vehicleTag")
+    private String vehicleTag;
+
+
+    @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Images> images;
+
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_user")
+    @JoinFormula("(SELECT u.name FROM tb_users u WHERE u.id_user = id_user)")
+    private User userName;
+
+
+    @ElementCollection
+    @CollectionTable(name = "tb_cars_opcionais", joinColumns = @JoinColumn(name = "id_car"))
+    @Column(name = "opcional")
+    @JsonManagedReference
+    private List<String> opcionais;
+
+    // Integration with OLX
+
+    @Column(name = "olx_ad_id")
+    private String olxAdId;
+
+    @Column(name = "olx_published")
+    private Boolean olxPublished = false;
+
+    @Column(name = "olx_published_at")
+    private LocalDateTime olxPublishedAt;
+
+    @Column(name = "olx_error")
+    private String olxError;
+
+    @Column(name = "olx_update_at")
+    private LocalDateTime olxUpdatedAt;
+    @Column(name = "olx_deleted_at")
+    private LocalDateTime olxDeletedAt;
 }
