@@ -29,7 +29,7 @@ public class CarEventListener {
         try {
             olxIntegrationService.publishCar(event.getCar(), event.getOlxCarParams());
             carService.updateOlxInfo(event.getCar());
-            logger.info("Carro {} publicado na OLX com sucesso", event.getCar().getId_car());
+
         } catch (Exception e) {
             logger.error("Erro ao publicar carro {} na OLX: {}", event.getCar().getId_car(), e.getMessage());
             carService.updateOlxInfo(event.getCar());
@@ -42,7 +42,7 @@ public class CarEventListener {
         try {
             olxIntegrationService.updateCar(event.getCar(), event.getOlxCarParams());
             carService.updateOlxInfo(event.getCar());
-            logger.info("Carro {} atualizado na OLX com sucesso", event.getCar().getId_car());
+
         } catch (Exception e) {
             logger.error("Erro ao atualizar carro {} na OLX: {}", event.getCar().getId_car(), e.getMessage());
             carService.updateOlxInfo(event.getCar());
@@ -55,7 +55,7 @@ public class CarEventListener {
         try {
             olxIntegrationService.deleteCar(event.getCar());
             carService.updateOlxInfo(event.getCar());
-            logger.info("Carro {} removido da OLX com sucesso", event.getCar().getId_car());
+
         } catch (Exception e) {
             logger.error("Erro ao remover carro {} da OLX: {}", event.getCar().getId_car(), e.getMessage());
             carService.updateOlxInfo(event.getCar());

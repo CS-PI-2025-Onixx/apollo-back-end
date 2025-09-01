@@ -61,7 +61,7 @@ public class CarService {
     }
 
     public Cars update(Long id, Cars carData, List<MultipartFile> newImageFiles, OLXCarParams olxCarParams, boolean publishOlx) {
-        Cars existingCar = carsRepository.findbyIdCar(id); // Use o método SEM imagens aqui
+        Cars existingCar = carsRepository.findbyIdCar(id);
         if (existingCar == null) {
             throw new RuntimeException("Carro não encontrado");
         }
@@ -120,7 +120,7 @@ public class CarService {
             List<Cars> result = carsRepository.findByFilters(brand, model, color, yearMin, yearMax, milageMin, mileageMax,
                     priceMin, priceMax, fuel,bodywork, transmission,direction, vehicleCondition, carTypeEnum);
 
-            log.info("SERVICE: Repository retornou {} registros", result.size());
+
             return result;
         } catch (Exception e) {
             log.error("SERVICE: Erro na consulta: ", e);
@@ -143,7 +143,7 @@ public class CarService {
                                     "retry_delay", 3000, // 3 segundos entre tentativas
                                     "max_retries", 3
                             ));
-                    log.warn("resultado" + uploadResult);
+
                     String imageUrl = (String) uploadResult.get("secure_url");
                     imageUrls.add(imageUrl);
 
@@ -228,7 +228,7 @@ public class CarService {
             if(newData.getOpcionais() !=null){
                 existingCar.setOpcionais(newData.getOpcionais());
             }
-            // Campos numéricos com validação
+
             if (newData.getVehiclePrice() != null && newData.getVehiclePrice().compareTo(BigDecimal.ZERO) > 0) {
                 existingCar.setVehiclePrice(newData.getVehiclePrice());
             }
