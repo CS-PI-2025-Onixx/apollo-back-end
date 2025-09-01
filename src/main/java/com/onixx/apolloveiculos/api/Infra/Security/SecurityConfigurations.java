@@ -1,6 +1,7 @@
 package com.onixx.apolloveiculos.api.Infra.Security;
 
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -30,8 +31,8 @@ public class SecurityConfigurations {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
                         .requestMatchers(HttpMethod.GET, "/motors/fetch").permitAll()
                         .requestMatchers(HttpMethod.GET, "/motors/fetch-by-filters").permitAll()
@@ -41,6 +42,10 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/bodywork/fetch-by-filters").permitAll()
                         .requestMatchers(HttpMethod.GET, "/fuel/fetch").permitAll()
                         .requestMatchers(HttpMethod.GET, "/fuel/fetch-by-filters").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cars").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/transmission/fetch").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/transmission/fetch-by-filters").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/forgot-password/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/cars/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/cars/search").permitAll()
                         .requestMatchers(HttpMethod.GET, "/transmissions/fetch").permitAll()

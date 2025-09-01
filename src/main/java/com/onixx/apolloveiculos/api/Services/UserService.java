@@ -7,6 +7,16 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.onixx.apolloveiculos.api.Domains.User.ChangePasswordDTO;
+import com.onixx.apolloveiculos.api.Domains.User.User;
+import com.onixx.apolloveiculos.api.Repositories.UserRepository;
+
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import com.onixx.apolloveiculos.api.Domains.User.User;
 import com.onixx.apolloveiculos.api.Domains.User.UserDTO;
 import com.onixx.apolloveiculos.api.Repositories.UserRepository;
@@ -19,6 +29,7 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
 
     @Transactional
     public User createUser(User user) {
@@ -47,6 +58,17 @@ public class UserService implements UserDetailsService {
             throw new UsernameNotFoundException("Usuário não encontrado: " + username);
         }
         return user;
+    }
+
+    @Transactional
+    public User updatePassword(String email, ChangePasswordDTO changePasswordDTO) {
+        User user = userRepository.findByEmail(email);
+        if (user != null) {
+            user.setPassword(passwordEncoder.encode(changePasswordDTO.newPassword()));
+            return userRepository.save(user);
+        } else {
+            return null;
+        }
     }
 
     @Transactional
