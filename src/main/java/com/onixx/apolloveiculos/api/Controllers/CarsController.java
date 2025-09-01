@@ -117,14 +117,10 @@ public class CarsController {
             @RequestParam(required = false) String carType) {
 
         try {
-            log.info("=== INICIANDO BUSCA DE CARROS ===");
-            log.info("Parâmetros recebidos: carType={}, brand={}, model={}", carType, brand, model);
-
             List<Cars> cars = carService.findByFilters(
                     brand, model, color, yearMin, yearMax,
                     mileageMin, mileageMax,priceMin, priceMax, fuel,bodywork, transmission, direction, vehicleCondition, carType
             );
-            log.info("Resultado da busca: {} carros encontrados", cars != null ? cars.size() : 0);
 
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseAnyDTO(200, "", "Carros encontrados com sucesso", cars));
         } catch (Exception e) {
