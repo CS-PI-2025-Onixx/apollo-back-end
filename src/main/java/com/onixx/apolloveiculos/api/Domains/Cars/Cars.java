@@ -126,6 +126,15 @@ public class Cars extends Standard {
     @JsonManagedReference
     private List<String> opcionais;
 
+    @Column(name = "dt_sale")
+    private LocalDateTime dtSale;
+
+    @Column(name = "dt_rent")
+    private LocalDateTime dtRent;
+
+
+
+
     // Integration with OLX
 
     @Column(name = "olx_ad_id")
