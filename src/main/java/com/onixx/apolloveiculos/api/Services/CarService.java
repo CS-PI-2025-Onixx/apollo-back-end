@@ -53,6 +53,13 @@ public class CarService {
         return carsRepository.findByIdCarWithImages(savedCar.getId_car());
     }
 
+    public void createMockData(Cars car, List<String> imageUrls) {
+        Cars savedCar = carsRepository.save(car);
+        if (imageUrls != null && !imageUrls.isEmpty()) {
+            saveCarImages(savedCar, imageUrls);
+        }
+    }
+
     public Cars findById(Long id) {
         return carsRepository.findByIdCarWithImages(id);
     }
@@ -117,15 +124,16 @@ public class CarService {
                 }
             }
 
-            List<Cars> result = carsRepository.findByFilters(brand, model, color, yearMin, yearMax, milageMin, mileageMax,
+
+            return carsRepository.findByFilters(brand, model, color, yearMin, yearMax, milageMin, mileageMax,
                     priceMin, priceMax, fuel,bodywork, transmission,direction, vehicleCondition, carTypeEnum);
-
-
-            return result;
         } catch (Exception e) {
             log.error("SERVICE: Erro na consulta: ", e);
             throw e;
         }
+    }
+    public int count() {
+        return (int) carsRepository.count();
     }
 
 
@@ -247,4 +255,5 @@ public class CarService {
     public void updateOlxInfo(Cars car) {
         carsRepository.save(car);
     }
+
 }
