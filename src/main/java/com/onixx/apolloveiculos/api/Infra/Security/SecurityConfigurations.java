@@ -1,6 +1,7 @@
 package com.onixx.apolloveiculos.api.Infra.Security;
 
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -44,9 +45,14 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/cars").permitAll()
                         .requestMatchers(HttpMethod.GET, "/transmission/fetch").permitAll()
                         .requestMatchers(HttpMethod.GET, "/transmission/fetch-by-filters").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/forgot-password/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cars/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/cars/search").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/transmissions/fetch").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/transmissions/fetch-by-filters").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+
                         .requestMatchers(HttpMethod.PUT, "/user/edit").authenticated()
                         /*Admin Routes */
                         .requestMatchers(HttpMethod.POST, "/motors/**").hasRole("ADMIN")
@@ -61,6 +67,10 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/bodywork/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/bodywork/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/bodywork/**").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/cars/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/cars/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/cars/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 ).exceptionHandling(exceptionHandling -> exceptionHandling
@@ -82,13 +92,16 @@ public class SecurityConfigurations {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://apollo-front-end.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
