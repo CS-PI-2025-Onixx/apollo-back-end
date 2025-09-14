@@ -6,6 +6,7 @@ import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
 import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
 import com.onixx.apolloveiculos.api.Domains.Images.Images;
 import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarParams;
+import com.onixx.apolloveiculos.api.Domains.User.User;
 import com.onixx.apolloveiculos.api.Events.CarDeletedEvent;
 import com.onixx.apolloveiculos.api.Events.CarUpdatedEvent;
 import com.onixx.apolloveiculos.api.Repositories.CarsRepository;
@@ -13,6 +14,8 @@ import com.onixx.apolloveiculos.api.Events.CarCreatedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,18 +42,28 @@ public class CarService {
     private ApplicationEventPublisher eventPublisher;
 
     public Cars create(Cars car, List<MultipartFile> imageFiles, OLXCarParams olxCarParams, boolean publishOlx) {
-        Cars savedCar = carsRepository.save(car);
-        if (imageFiles != null && !imageFiles.isEmpty()) {
-            List<String> imageUrls = uploadImagesToCloudinary(imageFiles);
-            saveCarImages(savedCar, imageUrls);
-        }
-        Cars carWithImages = carsRepository.findByIdCarWithImages(savedCar.getId_car());
+       try {
+           Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+           if (authentication != null && authentication.getPrincipal() instanceof User userDetails) {
+               car.setUser(userDetails);
+           }
 
-        if(publishOlx && olxCarParams != null){
-            eventPublisher.publishEvent(new CarCreatedEvent(this, carWithImages, olxCarParams));
-        }
+           Cars savedCar = carsRepository.save(car);
+           if (imageFiles != null && !imageFiles.isEmpty()) {
+               List<String> imageUrls = uploadImagesToCloudinary(imageFiles);
+               saveCarImages(savedCar, imageUrls);
+           }
+           Cars carWithImages = carsRepository.findByIdCarWithImages(savedCar.getId_car());
 
-        return carsRepository.findByIdCarWithImages(savedCar.getId_car());
+           if(publishOlx && olxCarParams != null){
+               eventPublisher.publishEvent(new CarCreatedEvent(this, carWithImages, olxCarParams));
+           }
+
+           return carsRepository.findByIdCarWithImages(savedCar.getId_car());
+       } catch (RuntimeException e){
+           log.error("SERVICE: Erro ao criar carro: ", e);
+           return  null;
+       }
     }
 
     public void createMockData(Cars car, List<String> imageUrls) {

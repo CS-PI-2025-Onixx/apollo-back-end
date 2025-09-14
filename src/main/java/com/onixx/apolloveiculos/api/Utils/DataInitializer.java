@@ -85,7 +85,7 @@ public class DataInitializer {
                     colorsRepository.save(new Colors(name));
                 }
             });
-            if (environmentChecker.isDevelopment() && carService.count() == 0) {
+            if (environmentChecker.isDevelopment()) {
                 LocalDateTime date = LocalDateTime.now().minusDays(10);
 
                 createCars(30, VENDA, DISPONIVEL, null, carService);
