@@ -5,6 +5,8 @@ import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import com.onixx.apolloveiculos.api.Domains.Cars.VehiclesStatus;
+import java.time.LocalDateTime;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -52,6 +54,11 @@ public interface CarsRepository extends JpaRepository<Cars, Long> {
                                  @Param("direction") List<String> direction,
                                  @Param("vehicleCondition") String vehicleCondition,
                                  @Param("carType") VehicleTypes carType);
-    }
+
+@Query("SELECT c FROM Cars c LEFT JOIN FETCH c.images WHERE c.vehicleStatus = :status AND c.dtSale BETWEEN :start AND :end AND c.dt_delete IS NULL ORDER BY c.dtSale DESC")
+List<Cars> findSoldBetweenDates(@Param("status") VehiclesStatus status,
+        @Param("start") LocalDateTime start,
+        @Param("end") LocalDateTime end);
+}
 
 

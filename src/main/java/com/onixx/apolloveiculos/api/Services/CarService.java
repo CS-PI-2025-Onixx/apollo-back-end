@@ -179,6 +179,7 @@ public class CarService {
         return "cars/" + filename.substring(0, filename.lastIndexOf('.'));
     }
 
+    
     private void updateCarData(Cars existingCar, Cars newData) {
 
             if (newData.getDescription() != null && !newData.getDescription().trim().isEmpty()) {
