@@ -1,15 +1,15 @@
 package com.onixx.apolloveiculos.api.Repositories;
 
-import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
-import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import com.onixx.apolloveiculos.api.Domains.Cars.VehiclesStatus;
-import java.time.LocalDateTime;
 
-import java.math.BigDecimal;
-import java.util.List;
+import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
+import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
 
 public interface CarsRepository extends JpaRepository<Cars, Long> {
     @Query("SELECT c FROM Cars c WHERE c.id_car = :id")
@@ -55,10 +55,9 @@ public interface CarsRepository extends JpaRepository<Cars, Long> {
                                  @Param("vehicleCondition") String vehicleCondition,
                                  @Param("carType") VehicleTypes carType);
 
-@Query("SELECT c FROM Cars c LEFT JOIN FETCH c.images WHERE c.vehicleStatus = :status AND c.dtSale BETWEEN :start AND :end AND c.dt_delete IS NULL ORDER BY c.dtSale DESC")
-List<Cars> findSoldBetweenDates(@Param("status") VehiclesStatus status,
-        @Param("start") LocalDateTime start,
-        @Param("end") LocalDateTime end);
+@Query("SELECT c FROM Cars c WHERE c.vehicleStatus = :status AND c.vehicleStatusChangedAt BETWEEN :start AND :end AND c.dt_delete IS NULL ORDER BY c.vehicleStatusChangedAt DESC")
+List<Cars> findByStatusChangedToVendidoBetweenDates(
+    @Param(value = "start")
+            LocalDateTime start, @Param(value = "end")
+                    LocalDateTime end);
 }
-
-

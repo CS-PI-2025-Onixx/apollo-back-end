@@ -1,26 +1,29 @@
 package com.onixx.apolloveiculos.api.Services;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
 import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
 import com.onixx.apolloveiculos.api.Domains.Images.Images;
 import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarParams;
+import com.onixx.apolloveiculos.api.Events.CarCreatedEvent;
 import com.onixx.apolloveiculos.api.Events.CarDeletedEvent;
 import com.onixx.apolloveiculos.api.Events.CarUpdatedEvent;
 import com.onixx.apolloveiculos.api.Repositories.CarsRepository;
-import com.onixx.apolloveiculos.api.Events.CarCreatedEvent;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -177,6 +180,13 @@ public class CarService {
         String[] parts = imageUrl.split("/");
         String filename = parts[parts.length - 1];
         return "cars/" + filename.substring(0, filename.lastIndexOf('.'));
+    }
+
+    public List<Cars> findCarsChangedToVendidoLast30Days() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime thirtyDaysAgo = now.minusDays(30);
+        
+        return carsRepository.findByStatusChangedToVendidoBetweenDates(thirtyDaysAgo, now);
     }
 
     
