@@ -16,6 +16,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
 import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
+import com.onixx.apolloveiculos.api.Domains.Cars.VehiclesStatus;
 import com.onixx.apolloveiculos.api.Domains.Images.Images;
 import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarParams;
 import com.onixx.apolloveiculos.api.Events.CarCreatedEvent;
@@ -185,8 +186,19 @@ public class CarService {
     public List<Cars> findCarsChangedToVendidoLast30Days() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime thirtyDaysAgo = now.minusDays(30);
+        VehiclesStatus status = VehiclesStatus.VENDIDO;
         
-        return carsRepository.findByStatusChangedToVendidoBetweenDates(thirtyDaysAgo, now);
+        return carsRepository.findByStatusChangedToVendidoBetweenDates(thirtyDaysAgo, now, status);
+    }
+
+    public long countCarsSoldLast30Days() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime thirtyDaysAgo = now.minusDays(30);
+
+        List<Cars> soldCars = carsRepository.findByStatusChangedToVendidoBetweenDates(
+                thirtyDaysAgo, now, VehiclesStatus.VENDIDO
+        );
+        return soldCars.size();
     }
 
     
