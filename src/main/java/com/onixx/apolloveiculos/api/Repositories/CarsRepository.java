@@ -62,4 +62,11 @@ public interface CarsRepository extends JpaRepository<Cars, Long> {
             @Param("end") LocalDateTime end,
             @Param("status") VehiclesStatus status
     );
+
+    @Query("SELECT COUNT(c) FROM Cars c WHERE c.vehicleStatus = :status AND c.vehicleStatusChangedAt BETWEEN :start AND :end AND c.dt_delete IS NULL")
+    long countByStatusChangedToVendidoBetweenDates(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            @Param("status") VehiclesStatus status
+    );
 }

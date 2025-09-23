@@ -2,6 +2,7 @@ package com.onixx.apolloveiculos.api.Services;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -191,16 +192,31 @@ public class CarService {
         return carsRepository.findByStatusChangedToVendidoBetweenDates(thirtyDaysAgo, now, status);
     }
 
-    public long countCarsSoldLast30Days() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime thirtyDaysAgo = now.minusDays(30);
-
-        List<Cars> soldCars = carsRepository.findByStatusChangedToVendidoBetweenDates(
-                thirtyDaysAgo, now, VehiclesStatus.VENDIDO
-        );
-        return soldCars.size();
+    public long countCarsSoldInLastDays(long days) {
+        LocalDateTime end = LocalDateTime.now();
+        LocalDateTime start = end.minusDays(days);
+        return countCarsSoldBetween(start, end);
     }
 
+    public long countCarsSoldInLastMonths(long months) {
+        LocalDateTime end = LocalDateTime.now();
+        LocalDateTime start = end.minusMonths(months);
+        return countCarsSoldBetween(start, end);
+    }
+
+    public long countCarsSoldInDuration(Duration duration) {
+        LocalDateTime end = LocalDateTime.now();
+        LocalDateTime start = end.minus(duration);
+        return countCarsSoldBetween(start, end);
+    }
+
+    public long countCarsSoldBetween(LocalDateTime start, LocalDateTime end) {
+        return carsRepository.countByStatusChangedToVendidoBetweenDates(start, end, VehiclesStatus.VENDIDO);
+    }
+
+    public List<Cars> findCarsSoldInPeriod(LocalDateTime start, LocalDateTime end) {
+        return carsRepository.findByStatusChangedToVendidoBetweenDates(start, end, VehiclesStatus.VENDIDO);
+    }
     
     private void updateCarData(Cars existingCar, Cars newData) {
 
