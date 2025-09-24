@@ -145,9 +145,4 @@ public class CarsController {
         }
     }
 
-    @PostMapping("/vendidos")
-    public List<Cars> findCarsChangedToVendidoLast30Days(){
-        
-    }
-
 }

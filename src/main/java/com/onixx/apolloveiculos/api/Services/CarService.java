@@ -204,9 +204,9 @@ public class CarService {
         return countCarsSoldBetween(start, end);
     }
 
-    public long countCarsSoldInDuration(Duration duration) {
+    public long countCarsSoldInLastYears(long years) {
         LocalDateTime end = LocalDateTime.now();
-        LocalDateTime start = end.minus(duration);
+        LocalDateTime start = end.minusYears(years);
         return countCarsSoldBetween(start, end);
     }
 
