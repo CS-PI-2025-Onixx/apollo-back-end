@@ -40,7 +40,8 @@ public class UserController {
     public ResponseEntity<?> login(@Valid @RequestBody UserDTO userDTO, HttpServletResponse response) {
         try {
             UserResponseDTO responseDTO = authService.authenticate(userDTO, response);
-            return ResponseEntity.ok(new ResponseAnyDTO(200, null, "Login realizado com sucesso", null));
+            return ResponseEntity.ok(new ResponseAnyDTO(200, null, "Login realizado com sucesso",
+                    Map.of("accessToken", responseDTO.token())));
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ResponseAnyDTO(401, "Credenciais inválidas", null, null));
@@ -120,6 +121,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ResponseAnyDTO(401, "Refresh token inválido ou expirado", null, null));
         }
-        return ResponseEntity.ok(new ResponseAnyDTO(200, null, "Token atualizado com sucesso", null));
+        return ResponseEntity.ok(new ResponseAnyDTO(200, null, "Token atualizado com sucesso",
+                Map.of("accessToken", newAccessToken)));
     }
 }

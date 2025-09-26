@@ -35,13 +35,13 @@ public class AuthService {
         User user = (User) auth.getPrincipal();
         var accessToken = tokenService.generateToken(user);
         var refreshTokenStr = tokenService.generateRefreshToken(user);
-        // Salvar refresh token no banco
+
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setToken(refreshTokenStr);
         refreshToken.setExpiryDate(Instant.now().plusSeconds(3600));
         refreshToken.setUser(user);
         refreshTokenRepository.save(refreshToken);
-        // Setar cookies
+
         String accessCookieHeader = String.format(
                 "authToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=Lax",
                 accessToken,
@@ -52,7 +52,7 @@ public class AuthService {
                 1 * 60 * 60);
         response.addHeader("Set-Cookie", accessCookieHeader);
         response.addHeader("Set-Cookie", refreshCookieHeader);
-        // ALTERAÇÃO: retorna o access token no DTO
+
         return new UserResponseDTO(accessToken);
     }
 
@@ -84,9 +84,9 @@ public class AuthService {
     }
 
     public void logout(User user, HttpServletResponse response) {
-        // Deletar refresh tokens do usuário
+
         refreshTokenRepository.deleteByUser(user);
-        // Expirar cookies
+
         response.addHeader("Set-Cookie",
                 "authToken=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax");
         response.addHeader("Set-Cookie",
@@ -106,18 +106,18 @@ public class AuthService {
         if (!user.getName().equals(username)) {
             return null;
         }
-        // Rotação: Deletar velho refresh
+
         refreshTokenRepository.delete(refreshTokenOpt.get());
-        // Gerar novo access e novo refresh
+
         var newAccessToken = tokenService.generateToken(user);
         var newRefreshTokenStr = tokenService.generateRefreshToken(user);
-        // Salvar novo refresh
+
         RefreshToken newRefreshToken = new RefreshToken();
         newRefreshToken.setToken(newRefreshTokenStr);
         newRefreshToken.setExpiryDate(Instant.now().plusSeconds(3600));
         newRefreshToken.setUser(user);
         refreshTokenRepository.save(newRefreshToken);
-        // Setar novos cookies
+
         String accessCookieHeader = String.format(
                 "authToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=Lax",
                 newAccessToken,
