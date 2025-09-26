@@ -2,9 +2,9 @@ package com.onixx.apolloveiculos.api.Services;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -184,38 +184,24 @@ public class CarService {
         return "cars/" + filename.substring(0, filename.lastIndexOf('.'));
     }
 
-    public List<Cars> findCarsChangedToVendidoLast30Days() {
+    public List<Cars> findCarsChangedToStatusInPeriod(VehiclesStatus status, long days) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime thirtyDaysAgo = now.minusDays(30);
-        VehiclesStatus status = VehiclesStatus.VENDIDO;
-        
-        return carsRepository.findByStatusChangedToVendidoBetweenDates(thirtyDaysAgo, now, status);
+        LocalDateTime start = now.minusDays(days);
+        return carsRepository.findByStatusChangedBetweenDates(start, now, status);
     }
 
-    public long countCarsSoldInLastDays(long days) {
-        LocalDateTime end = LocalDateTime.now();
-        LocalDateTime start = end.minusDays(days);
-        return countCarsSoldBetween(start, end);
+    public long countCarsChangedToStatusInPeriod(VehiclesStatus status, long days) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = now.minusDays(days);
+        return carsRepository.countByStatusChangedBetweenDates(start, now, status);
     }
 
-    public long countCarsSoldInLastMonths(long months) {
-        LocalDateTime end = LocalDateTime.now();
-        LocalDateTime start = end.minusMonths(months);
-        return countCarsSoldBetween(start, end);
-    }
-
-    public long countCarsSoldInLastYears(long years) {
-        LocalDateTime end = LocalDateTime.now();
-        LocalDateTime start = end.minusYears(years);
-        return countCarsSoldBetween(start, end);
-    }
-
-    public long countCarsSoldBetween(LocalDateTime start, LocalDateTime end) {
-        return carsRepository.countByStatusChangedToVendidoBetweenDates(start, end, VehiclesStatus.VENDIDO);
-    }
-
-    public List<Cars> findCarsSoldInPeriod(LocalDateTime start, LocalDateTime end) {
-        return carsRepository.findByStatusChangedToVendidoBetweenDates(start, end, VehiclesStatus.VENDIDO);
+    public Map<VehiclesStatus, Long> getStatusCountersForPeriod(long days) {
+        Map<VehiclesStatus, Long> counters = new HashMap<>();
+        for (VehiclesStatus status : VehiclesStatus.values()) {
+            counters.put(status, countCarsChangedToStatusInPeriod(status, days));
+        }
+        return counters;
     }
     
     private void updateCarData(Cars existingCar, Cars newData) {

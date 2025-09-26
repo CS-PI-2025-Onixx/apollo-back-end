@@ -57,14 +57,14 @@ public interface CarsRepository extends JpaRepository<Cars, Long> {
                                  @Param("carType") VehicleTypes carType);
 
     @Query("SELECT c FROM Cars c WHERE c.vehicleStatus = :status AND c.vehicleStatusChangedAt BETWEEN :start AND :end AND c.dt_delete IS NULL ORDER BY c.vehicleStatusChangedAt DESC")
-    List<Cars> findByStatusChangedToVendidoBetweenDates(
+    List<Cars> findByStatusChangedBetweenDates(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
             @Param("status") VehiclesStatus status
     );
 
     @Query("SELECT COUNT(c) FROM Cars c WHERE c.vehicleStatus = :status AND c.vehicleStatusChangedAt BETWEEN :start AND :end AND c.dt_delete IS NULL")
-    long countByStatusChangedToVendidoBetweenDates(
+    long countByStatusChangedBetweenDates(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
             @Param("status") VehiclesStatus status

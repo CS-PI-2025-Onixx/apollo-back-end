@@ -3,6 +3,7 @@ package com.onixx.apolloveiculos.api.Controllers;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.onixx.apolloveiculos.api.DTO.ResponseAnyDTO;
 import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
+import com.onixx.apolloveiculos.api.Domains.Cars.VehiclesStatus;
 import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarParams;
 import com.onixx.apolloveiculos.api.Services.CarService;
 
@@ -143,6 +145,11 @@ public class CarsController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GetMapping("/cars/status")
+    public ResponseEntity<Map<VehiclesStatus, Long>> getStatusCounters(@RequestParam Long days) {
+        return ResponseEntity.ok(carService.getStatusCountersForPeriod(days));
     }
 
 }
