@@ -152,4 +152,11 @@ public class CarsController {
         return ResponseEntity.ok(carService.getStatusCountersForPeriod(days));
     }
 
+    @GetMapping("/cars/status-changed")
+    public ResponseEntity<List<Cars>> findCarsChangedToStatusInPeriod(
+        @RequestParam VehiclesStatus status,
+        @RequestParam int days) {
+            List<Cars> cars = carService.findCarsChangedToStatusInPeriod(status, days);
+            return ResponseEntity.ok(cars);
+    }
 }
