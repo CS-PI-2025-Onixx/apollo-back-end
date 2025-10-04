@@ -44,7 +44,7 @@ public class CarService {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
-    public Page<Cars> listarPaginado(Integer page, Integer size) {
+    public Page<Cars> listAllPaginated(Integer page, Integer size) {
 
         int defaultPage = 1;
         int defaultSize = 20;

@@ -35,7 +35,7 @@ public class CarsController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
         try {
-            Page<Cars> carsPage = carService.listarPaginado(page, size);
+            Page<Cars> carsPage = carService.listAllPaginated(page, size);
 
             return ResponseEntity.ok().body(
                     new ResponseAnyDTO(
