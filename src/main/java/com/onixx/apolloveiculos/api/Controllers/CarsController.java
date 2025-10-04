@@ -11,6 +11,7 @@ import com.onixx.apolloveiculos.api.Services.OLXIntegrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,16 +29,42 @@ public class CarsController {
 
     @Autowired
     private CarService carService;
+
+    @GetMapping
+    public ResponseEntity<ResponseAnyDTO> findAll(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        try {
+            Page<Cars> carsPage = carService.listarPaginado(page, size);
+
+            return ResponseEntity.ok().body(
+                    new ResponseAnyDTO(
+                            200,
+                            "",
+                            "Carros encontrados com sucesso",
+                            carsPage));
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseAnyDTO(
+                            400,
+                            e.getMessage(),
+                            "Erro ao buscar veículos",
+                            null));
+        }
+    }
+
     @PostMapping
     public ResponseEntity<ResponseAnyDTO> create(
             @ModelAttribute Cars car,
             @RequestPart(value = "car_images", required = false) List<MultipartFile> imageFiles,
             @ModelAttribute OLXCarParams olxCarParams,
-            @RequestParam(value = "publish_olx", required = false, defaultValue = "false") Boolean publishOlx
-            ) {
+            @RequestParam(value = "publish_olx", required = false, defaultValue = "false") Boolean publishOlx) {
         try {
             Cars savedCar = carService.create(car, imageFiles, olxCarParams, publishOlx);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseAnyDTO(200, "", "Carro salvo com sucesso", Collections.emptyList()));
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ResponseAnyDTO(200, "", "Carro salvo com sucesso", Collections.emptyList()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -48,7 +75,8 @@ public class CarsController {
         try {
             Cars car = carService.findById(id);
             if (car != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(new ResponseAnyDTO(200, "", "Carro encontrado com sucesso",car));
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(new ResponseAnyDTO(200, "", "Carro encontrado com sucesso", car));
             }
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
@@ -56,23 +84,23 @@ public class CarsController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity<ResponseAnyDTO> findAll() {
-        try {
-            List<Cars> cars = carService.findAll();
-            return ResponseEntity.ok().body(new ResponseAnyDTO(200, "", "Carros encontrados com sucesso", cars));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+    // @GetMapping
+    // public ResponseEntity<ResponseAnyDTO> findAll() {
+    // try {
+    // List<Cars> cars = carService.findAll();
+    // return ResponseEntity.ok().body(new ResponseAnyDTO(200, "", "Carros
+    // encontrados com sucesso", cars));
+    // } catch (Exception e) {
+    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    // }
+    // }
 
     @PostMapping("/{id}")
     public ResponseEntity<ResponseAnyDTO> update(
             @PathVariable Long id,
             @ModelAttribute Cars carData,
             @RequestPart(value = "car_images", required = false) List<MultipartFile> newImageFiles,
-            @RequestParam(value = "publish_olx", required = false, defaultValue = "false") Boolean publishOlx
-    ) {
+            @RequestParam(value = "publish_olx", required = false, defaultValue = "false") Boolean publishOlx) {
         try {
             Cars updatedCar = carService.update(id, carData, newImageFiles, null, publishOlx);
             return ResponseEntity.ok().body(new ResponseAnyDTO(200, "", "Carro atualizado com sucesso", updatedCar));
@@ -90,7 +118,8 @@ public class CarsController {
     public ResponseEntity<ResponseAnyDTO> delete(@PathVariable Long id) {
         try {
             carService.delete(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new ResponseAnyDTO(204, "", "Carro deletado com sucesso", Collections.emptyList()));
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(new ResponseAnyDTO(204, "", "Carro deletado com sucesso", Collections.emptyList()));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
@@ -119,15 +148,15 @@ public class CarsController {
         try {
             List<Cars> cars = carService.findByFilters(
                     brand, model, color, yearMin, yearMax,
-                    mileageMin, mileageMax,priceMin, priceMax, fuel,bodywork, transmission, direction, vehicleCondition, carType
-            );
+                    mileageMin, mileageMax, priceMin, priceMax, fuel, bodywork, transmission, direction,
+                    vehicleCondition, carType);
 
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseAnyDTO(200, "", "Carros encontrados com sucesso", cars));
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ResponseAnyDTO(200, "", "Carros encontrados com sucesso", cars));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 
     @GetMapping("/trade")
     public ResponseEntity<List<Cars>> findWithTrade() {
