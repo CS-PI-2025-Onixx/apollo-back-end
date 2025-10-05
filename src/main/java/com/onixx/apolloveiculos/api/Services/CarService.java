@@ -1,11 +1,30 @@
 package com.onixx.apolloveiculos.api.Services;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
 import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
+import com.onixx.apolloveiculos.api.Domains.Cars.VehiclesStatus;
 import com.onixx.apolloveiculos.api.Domains.Images.Images;
 import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarParams;
+
+import com.onixx.apolloveiculos.api.Events.CarCreatedEvent;
+import com.onixx.apolloveiculos.api.Events.CarDeletedEvent;
+import com.onixx.apolloveiculos.api.Events.CarUpdatedEvent;
+import com.onixx.apolloveiculos.api.Repositories.CarsRepository;
 import com.onixx.apolloveiculos.api.Domains.User.User;
 import com.onixx.apolloveiculos.api.Events.CarDeletedEvent;
 import com.onixx.apolloveiculos.api.Events.CarUpdatedEvent;
@@ -14,16 +33,15 @@ import com.onixx.apolloveiculos.api.Events.CarCreatedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -41,29 +59,50 @@ public class CarService {
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
+    public Page<Cars> listAllPaginated(Integer page, Integer size) {
+
+        int defaultPage = 1;
+        int defaultSize = 20;
+        int maxSize = 100;
+
+        if (page == null || page < 1) {
+            page = defaultPage;
+        }
+
+        if (size == null || size < 1) {
+            size = defaultSize;
+        } else if (size > maxSize) {
+            size = maxSize;
+        }
+
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        return carsRepository.findAll(pageable);
+    }
+
     public Cars create(Cars car, List<MultipartFile> imageFiles, OLXCarParams olxCarParams, boolean publishOlx) {
-       try {
-           Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-           if (authentication != null && authentication.getPrincipal() instanceof User userDetails) {
-               car.setUser(userDetails);
-           }
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication != null && authentication.getPrincipal() instanceof User userDetails) {
+                car.setUser(userDetails);
+            }
 
-           Cars savedCar = carsRepository.save(car);
-           if (imageFiles != null && !imageFiles.isEmpty()) {
-               List<String> imageUrls = uploadImagesToCloudinary(imageFiles);
-               saveCarImages(savedCar, imageUrls);
-           }
-           Cars carWithImages = carsRepository.findByIdCarWithImages(savedCar.getId_car());
+            Cars savedCar = carsRepository.save(car);
+            if (imageFiles != null && !imageFiles.isEmpty()) {
+                List<String> imageUrls = uploadImagesToCloudinary(imageFiles);
+                saveCarImages(savedCar, imageUrls);
+            }
+            Cars carWithImages = carsRepository.findByIdCarWithImages(savedCar.getId_car());
 
-           if(publishOlx && olxCarParams != null){
-               eventPublisher.publishEvent(new CarCreatedEvent(this, carWithImages, olxCarParams));
-           }
+            if (publishOlx && olxCarParams != null) {
+                eventPublisher.publishEvent(new CarCreatedEvent(this, carWithImages, olxCarParams));
+            }
 
-           return carsRepository.findByIdCarWithImages(savedCar.getId_car());
-       } catch (RuntimeException e){
-           log.error("SERVICE: Erro ao criar carro: ", e);
-           return  null;
-       }
+            return carsRepository.findByIdCarWithImages(savedCar.getId_car());
+        } catch (RuntimeException e) {
+            log.error("SERVICE: Erro ao criar carro: ", e);
+            return null;
+        }
     }
 
     public void createMockData(Cars car, List<String> imageUrls) {
@@ -76,11 +115,13 @@ public class CarService {
     public Cars findById(Long id) {
         return carsRepository.findByIdCarWithImages(id);
     }
+
     public List<Cars> findAll() {
         return carsRepository.findAllWithImages();
     }
 
-    public Cars update(Long id, Cars carData, List<MultipartFile> newImageFiles, OLXCarParams olxCarParams, boolean publishOlx) {
+    public Cars update(Long id, Cars carData, List<MultipartFile> newImageFiles, OLXCarParams olxCarParams,
+            boolean publishOlx) {
         Cars existingCar = carsRepository.findbyIdCar(id);
         if (existingCar == null) {
             throw new RuntimeException("Carro não encontrado");
@@ -123,9 +164,10 @@ public class CarService {
     }
 
     public List<Cars> findByFilters(String brand, String model, String color,
-                                    Integer yearMin, Integer yearMax, Integer milageMin, Integer mileageMax,
-                                    BigDecimal priceMin, BigDecimal priceMax,
-                                    List<String> fuel,List<String> bodywork, List<String> transmission, List<String> direction,  String vehicleCondition, String carType) {
+            Integer yearMin, Integer yearMax, Integer milageMin, Integer mileageMax,
+            BigDecimal priceMin, BigDecimal priceMax,
+            List<String> fuel, List<String> bodywork, List<String> transmission, List<String> direction,
+            String vehicleCondition, String carType) {
 
         try {
             VehicleTypes carTypeEnum = null;
@@ -137,18 +179,17 @@ public class CarService {
                 }
             }
 
-
             return carsRepository.findByFilters(brand, model, color, yearMin, yearMax, milageMin, mileageMax,
-                    priceMin, priceMax, fuel,bodywork, transmission,direction, vehicleCondition, carTypeEnum);
+                    priceMin, priceMax, fuel, bodywork, transmission, direction, vehicleCondition, carTypeEnum);
         } catch (Exception e) {
             log.error("SERVICE: Erro na consulta: ", e);
             throw e;
         }
     }
+
     public int count() {
         return (int) carsRepository.count();
     }
-
 
     private List<String> uploadImagesToCloudinary(List<MultipartFile> imageFiles) {
         List<String> imageUrls = new ArrayList<>();
@@ -162,8 +203,7 @@ public class CarService {
                                     "resource_type", "image",
                                     "timeout", 60000, // 60 segundos timeout
                                     "retry_delay", 3000, // 3 segundos entre tentativas
-                                    "max_retries", 3
-                            ));
+                                    "max_retries", 3));
 
                     String imageUrl = (String) uploadResult.get("secure_url");
                     imageUrls.add(imageUrl);
@@ -200,66 +240,88 @@ public class CarService {
         return "cars/" + filename.substring(0, filename.lastIndexOf('.'));
     }
 
+    public List<Cars> findCarsChangedToStatusInPeriod(VehiclesStatus status, long days) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = now.minusDays(days);
+        return carsRepository.findByStatusChangedBetweenDates(start, now, status);
+    }
+
+    public long countCarsChangedToStatusInPeriod(VehiclesStatus status, long days) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = now.minusDays(days);
+        return carsRepository.countByStatusChangedBetweenDates(start, now, status);
+    }
+
+    public Map<VehiclesStatus, Long> getStatusCountersForPeriod(long days) {
+        Map<VehiclesStatus, Long> counters = new HashMap<>();
+        for (VehiclesStatus status : VehiclesStatus.values()) {
+            counters.put(status, countCarsChangedToStatusInPeriod(status, days));
+        }
+        return counters;
+    }
+    
     private void updateCarData(Cars existingCar, Cars newData) {
 
-            if (newData.getDescription() != null && !newData.getDescription().trim().isEmpty()) {
-                existingCar.setDescription(newData.getDescription().trim());
-            }
-            if (newData.getModel() != null && !newData.getModel().trim().isEmpty()) {
-                existingCar.setModel(newData.getModel().trim());
-            }
-            if (newData.getColor() != null && !newData.getColor().trim().isEmpty()) {
-                existingCar.setColor(newData.getColor().trim());
-            }
-            if (newData.getBrand() != null && !newData.getBrand().trim().isEmpty()) {
-                existingCar.setBrand(newData.getBrand().trim());
-            }
-            if (newData.getFuel() != null && !newData.getFuel().trim().isEmpty()) {
-                existingCar.setFuel(newData.getFuel().trim());
-            }
-            if (newData.getVehicleCondition() != null && !newData.getVehicleCondition().trim().isEmpty()) {
-                existingCar.setVehicleCondition(newData.getVehicleCondition().trim());
-            }
-            if (newData.getLicensePlateEnd() != null) {
-                existingCar.setLicensePlateEnd(newData.getLicensePlateEnd());
-            }
-            if(newData.getVehicleTag()!=null) {
-                existingCar.setVehicleTag(newData.getVehicleTag().trim());
-            }
-            if(newData.getMotorPower()!=null) {
-                existingCar.setMotorPower(newData.getMotorPower().trim());
-            }
-            if (newData.getTransmission() != null && !newData.getTransmission().trim().isEmpty()) {
-                existingCar.setTransmission(newData.getTransmission().trim());
-            }
-            if (newData.getBodywork() != null && !newData.getBodywork().trim().isEmpty()) {
-                existingCar.setBodywork(newData.getBodywork().trim());
-            }
-            if( newData.getDirection() !=null){
-                existingCar.setDirection(newData.getDirection().trim());
-            }
+        if (newData.getDescription() != null && !newData.getDescription().trim().isEmpty()) {
+            existingCar.setDescription(newData.getDescription().trim());
+        }
+        if (newData.getModel() != null && !newData.getModel().trim().isEmpty()) {
+            existingCar.setModel(newData.getModel().trim());
+        }
+        if (newData.getColor() != null && !newData.getColor().trim().isEmpty()) {
+            existingCar.setColor(newData.getColor().trim());
+        }
+        if (newData.getBrand() != null && !newData.getBrand().trim().isEmpty()) {
+            existingCar.setBrand(newData.getBrand().trim());
+        }
+        if (newData.getFuel() != null && !newData.getFuel().trim().isEmpty()) {
+            existingCar.setFuel(newData.getFuel().trim());
+        }
+        if (newData.getVehicleCondition() != null && !newData.getVehicleCondition().trim().isEmpty()) {
+            existingCar.setVehicleCondition(newData.getVehicleCondition().trim());
+        }
+        if (newData.getLicensePlateEnd() != null) {
+            existingCar.setLicensePlateEnd(newData.getLicensePlateEnd());
+        }
+        if (newData.getVehicleTag() != null) {
+            existingCar.setVehicleTag(newData.getVehicleTag().trim());
+        }
+        if (newData.getMotorPower() != null) {
+            existingCar.setMotorPower(newData.getMotorPower().trim());
+        }
+        if (newData.getTransmission() != null && !newData.getTransmission().trim().isEmpty()) {
+            existingCar.setTransmission(newData.getTransmission().trim());
+        }
+        if (newData.getBodywork() != null && !newData.getBodywork().trim().isEmpty()) {
+            existingCar.setBodywork(newData.getBodywork().trim());
+        }
+        if (newData.getDirection() != null) {
+            existingCar.setDirection(newData.getDirection().trim());
+        }
 
-            if(newData.getCarType()!=null) {
-                existingCar.setCarType(newData.getCarType());
-            }
+        if (newData.getCarType() != null) {
+            existingCar.setCarType(newData.getCarType());
+        }
 
-            if(newData.getVehicleStatus()!=null){
-                existingCar.setVehicleStatus(newData.getVehicleStatus());
-            }
-            if(newData.getOpcionais() !=null){
-                existingCar.setOpcionais(newData.getOpcionais());
-            }
+        if (newData.getVehicleStatus() != null) {
+            existingCar.setVehicleStatus(newData.getVehicleStatus());
+        }
+        if (newData.getOpcionais() != null) {
+            existingCar.setOpcionais(newData.getOpcionais());
+        }
 
-            if (newData.getVehiclePrice() != null && newData.getVehiclePrice().compareTo(BigDecimal.ZERO) > 0) {
-                existingCar.setVehiclePrice(newData.getVehiclePrice());
-            }
-            if (newData.getYear() != null && newData.getYear() > 1900 && newData.getYear() <= java.time.Year.now().getValue() + 1) {
-                existingCar.setYear(newData.getYear());
-            }
-            if (newData.getMileage() != null && newData.getMileage() >= 0) {
-                existingCar.setMileage(newData.getMileage());
-            }
-        if (newData.getAcceptsExchange() != null) existingCar.setAcceptsExchange(newData.getAcceptsExchange());
+        if (newData.getVehiclePrice() != null && newData.getVehiclePrice().compareTo(BigDecimal.ZERO) > 0) {
+            existingCar.setVehiclePrice(newData.getVehiclePrice());
+        }
+        if (newData.getYear() != null && newData.getYear() > 1900
+                && newData.getYear() <= java.time.Year.now().getValue() + 1) {
+            existingCar.setYear(newData.getYear());
+        }
+        if (newData.getMileage() != null && newData.getMileage() >= 0) {
+            existingCar.setMileage(newData.getMileage());
+        }
+        if (newData.getAcceptsExchange() != null)
+            existingCar.setAcceptsExchange(newData.getAcceptsExchange());
 
         existingCar.setTrade(newData.isTrade());
         existingCar.setArmored(newData.isArmored());

@@ -110,6 +110,9 @@ public class Cars extends Standard {
     @Column(name= "vehicleTag")
     private String vehicleTag;
 
+    @Column(name = "vehicleStatusChangedAt")
+    private LocalDateTime vehicleStatusChangedAt;
+
 
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
