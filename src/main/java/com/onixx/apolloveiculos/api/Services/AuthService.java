@@ -3,6 +3,7 @@ package com.onixx.apolloveiculos.api.Services;
 import com.onixx.apolloveiculos.api.DTO.ResponseAnyDTO;
 import com.onixx.apolloveiculos.api.Domains.User.*;
 import com.onixx.apolloveiculos.api.Infra.Security.TokenService;
+import com.onixx.apolloveiculos.api.Repositories.RefreshTokenRepository;
 import com.onixx.apolloveiculos.api.Repositories.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,47 +13,56 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import jakarta.servlet.http.Cookie;
+import java.time.Instant;
 import java.util.Collections;
 
 @Service
 public class AuthService {
-
     @Autowired
     private AuthenticationManager authenticationManager;
-
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
     @Autowired
     private TokenService tokenService;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     public UserResponseDTO authenticate(UserDTO userDTO, HttpServletResponse response) throws AuthenticationException {
         var authToken = new UsernamePasswordAuthenticationToken(userDTO.name(), userDTO.password());
         var auth = authenticationManager.authenticate(authToken);
-        var token = tokenService.generateToken((User) auth.getPrincipal());
+        User user = (User) auth.getPrincipal();
+        var accessToken = tokenService.generateToken(user);
+        var refreshTokenStr = tokenService.generateRefreshToken(user);
 
-        String cookieHeader = String.format(
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setToken(refreshTokenStr);
+        refreshToken.setExpiryDate(Instant.now().plusSeconds(3600));
+        refreshToken.setUser(user);
+        refreshTokenRepository.save(refreshToken);
+
+        String accessCookieHeader = String.format(
                 "authToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=Lax",
-                token,
-                24 * 60 * 60
-        );
+                accessToken,
+                24 * 60 * 60);
+        String refreshCookieHeader = String.format(
+                "refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=Lax",
+                refreshTokenStr,
+                1 * 60 * 60);
+        response.addHeader("Set-Cookie", accessCookieHeader);
+        response.addHeader("Set-Cookie", refreshCookieHeader);
 
-        response.addHeader("Set-Cookie", cookieHeader);
-
-        return new UserResponseDTO(null);
+        return new UserResponseDTO(accessToken);
     }
 
     public ResponseAnyDTO register(UserRegisterDTO userRegisterDTO) {
         if (userExists(userRegisterDTO)) {
-            return new ResponseAnyDTO(422, "Usuário já cadastrado com esse nome ou email", null, Collections.emptyList());
+            return new ResponseAnyDTO(422, "Usuário já cadastrado com esse nome ou email", null,
+                    Collections.emptyList());
         }
-
         User newUser = createUser(userRegisterDTO);
         userRepository.save(newUser);
-
         return new ResponseAnyDTO(201, null, "Usuário cadastrado com sucesso", Collections.emptyList());
     }
 
@@ -64,14 +74,60 @@ public class AuthService {
     private User createUser(UserRegisterDTO userRegisterDTO) {
         String encryptedPassword = passwordEncoder.encode(userRegisterDTO.password());
         UserRoles role = userRegisterDTO.role() != null ? userRegisterDTO.role() : UserRoles.ROLE_USER;
-
         return new User(
                 userRegisterDTO.name(),
                 userRegisterDTO.email(),
                 encryptedPassword,
                 role,
                 userRegisterDTO.fullname(),
-                userRegisterDTO.cellphone()
-        );
+                userRegisterDTO.cellphone());
+    }
+
+    public void logout(User user, HttpServletResponse response) {
+
+        refreshTokenRepository.deleteByUser(user);
+
+        response.addHeader("Set-Cookie",
+                "authToken=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax");
+        response.addHeader("Set-Cookie",
+                "refreshToken=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax");
+    }
+
+    public String refreshToken(String refreshTokenStr, HttpServletResponse response) {
+        String username = tokenService.validateRefreshToken(refreshTokenStr);
+        if (username.isEmpty()) {
+            return null;
+        }
+        var refreshTokenOpt = refreshTokenRepository.findByToken(refreshTokenStr);
+        if (refreshTokenOpt.isEmpty() || refreshTokenOpt.get().getExpiryDate().isBefore(Instant.now())) {
+            return null;
+        }
+        User user = refreshTokenOpt.get().getUser();
+        if (!user.getName().equals(username)) {
+            return null;
+        }
+
+        refreshTokenRepository.delete(refreshTokenOpt.get());
+
+        var newAccessToken = tokenService.generateToken(user);
+        var newRefreshTokenStr = tokenService.generateRefreshToken(user);
+
+        RefreshToken newRefreshToken = new RefreshToken();
+        newRefreshToken.setToken(newRefreshTokenStr);
+        newRefreshToken.setExpiryDate(Instant.now().plusSeconds(3600));
+        newRefreshToken.setUser(user);
+        refreshTokenRepository.save(newRefreshToken);
+
+        String accessCookieHeader = String.format(
+                "authToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=Lax",
+                newAccessToken,
+                24 * 60 * 60);
+        String refreshCookieHeader = String.format(
+                "refreshToken=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=Lax",
+                newRefreshTokenStr,
+                1 * 60 * 60);
+        response.addHeader("Set-Cookie", accessCookieHeader);
+        response.addHeader("Set-Cookie", refreshCookieHeader);
+        return newAccessToken;
     }
 }
