@@ -1,11 +1,30 @@
 package com.onixx.apolloveiculos.api.Services;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
 import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
+import com.onixx.apolloveiculos.api.Domains.Cars.VehiclesStatus;
 import com.onixx.apolloveiculos.api.Domains.Images.Images;
 import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarParams;
+
+import com.onixx.apolloveiculos.api.Events.CarCreatedEvent;
+import com.onixx.apolloveiculos.api.Events.CarDeletedEvent;
+import com.onixx.apolloveiculos.api.Events.CarUpdatedEvent;
+import com.onixx.apolloveiculos.api.Repositories.CarsRepository;
 import com.onixx.apolloveiculos.api.Domains.User.User;
 import com.onixx.apolloveiculos.api.Events.CarDeletedEvent;
 import com.onixx.apolloveiculos.api.Events.CarUpdatedEvent;
@@ -22,11 +41,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -225,6 +240,26 @@ public class CarService {
         return "cars/" + filename.substring(0, filename.lastIndexOf('.'));
     }
 
+    public List<Cars> findCarsChangedToStatusInPeriod(VehiclesStatus status, long days) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = now.minusDays(days);
+        return carsRepository.findByStatusChangedBetweenDates(start, now, status);
+    }
+
+    public long countCarsChangedToStatusInPeriod(VehiclesStatus status, long days) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = now.minusDays(days);
+        return carsRepository.countByStatusChangedBetweenDates(start, now, status);
+    }
+
+    public Map<VehiclesStatus, Long> getStatusCountersForPeriod(long days) {
+        Map<VehiclesStatus, Long> counters = new HashMap<>();
+        for (VehiclesStatus status : VehiclesStatus.values()) {
+            counters.put(status, countCarsChangedToStatusInPeriod(status, days));
+        }
+        return counters;
+    }
+    
     private void updateCarData(Cars existingCar, Cars newData) {
 
         if (newData.getDescription() != null && !newData.getDescription().trim().isEmpty()) {
