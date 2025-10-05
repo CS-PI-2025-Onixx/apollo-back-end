@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +15,9 @@ import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
 import com.onixx.apolloveiculos.api.Domains.Cars.VehiclesStatus;
 
 public interface CarsRepository extends JpaRepository<Cars, Long> {
+
+    Page<Cars> findAll(Pageable pageable);
+
     @Query("SELECT c FROM Cars c WHERE c.id_car = :id")
     Cars findbyIdCar(Long id);
 
@@ -37,26 +42,26 @@ public interface CarsRepository extends JpaRepository<Cars, Long> {
             "(:#{#transmission == null || #transmission.isEmpty()} = true OR c.transmission IN :transmission) AND " +
             "(:#{#direction == null || #direction.isEmpty()} = true OR c.direction IN :direction) AND " +
             "(:vehicleCondition IS NULL OR c.vehicleCondition = :vehicleCondition) AND " +
-            "(:carType IS NULL OR c.carType = :carType)"+
-            "AND c.dt_delete IS NULL "+
-            "AND c.dtRent IS NULL "+
-            "AND c.dtSale IS NULL"+
-            " ORDER BY c.id_car DESC")
+            "(:carType IS NULL OR c.carType = :carType) " +
+            "AND c.dt_delete IS NULL " +
+            "AND c.dtRent IS NULL " +
+            "AND c.dtSale IS NULL " +
+            "ORDER BY c.id_car DESC")
     List<Cars> findByFilters(@Param("brand") String brand,
-                                 @Param("model") String model,
-                                 @Param("color") String color,
-                                 @Param("yearMin") Integer yearMin,
-                                 @Param("yearMax") Integer yearMax,
-                                 @Param("mileageMin") Integer mileageMin,
-                                 @Param("mileageMax") Integer mileageMax,
-                                 @Param("priceMin") BigDecimal priceMin,
-                                 @Param("priceMax") BigDecimal priceMax,
-                                 @Param("fuel") List<String> fuel,
-                                 @Param("bodywork") List<String> bodywork,
-                                 @Param("transmission") List<String> transmission,
-                                 @Param("direction") List<String> direction,
-                                 @Param("vehicleCondition") String vehicleCondition,
-                                 @Param("carType") VehicleTypes carType);
+                             @Param("model") String model,
+                             @Param("color") String color,
+                             @Param("yearMin") Integer yearMin,
+                             @Param("yearMax") Integer yearMax,
+                             @Param("mileageMin") Integer mileageMin,
+                             @Param("mileageMax") Integer mileageMax,
+                             @Param("priceMin") BigDecimal priceMin,
+                             @Param("priceMax") BigDecimal priceMax,
+                             @Param("fuel") List<String> fuel,
+                             @Param("bodywork") List<String> bodywork,
+                             @Param("transmission") List<String> transmission,
+                             @Param("direction") List<String> direction,
+                             @Param("vehicleCondition") String vehicleCondition,
+                             @Param("carType") VehicleTypes carType);
 
     @Query("SELECT c FROM Cars c WHERE c.vehicleStatus = :status AND c.vehicleStatusChangedAt BETWEEN :start AND :end AND c.dt_delete IS NULL ORDER BY c.vehicleStatusChangedAt DESC")
     List<Cars> findByStatusChangedBetweenDates(
