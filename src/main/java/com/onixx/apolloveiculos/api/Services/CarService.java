@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -104,7 +105,7 @@ public class CarService {
             return null;
         }
     }
-
+    @Transactional
     public void createMockData(Cars car, List<String> imageUrls) {
         Cars savedCar = carsRepository.save(car);
         if (imageUrls != null && !imageUrls.isEmpty()) {
