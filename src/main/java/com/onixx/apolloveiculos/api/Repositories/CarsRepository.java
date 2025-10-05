@@ -1,13 +1,16 @@
 package com.onixx.apolloveiculos.api.Repositories;
 
-import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
-import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.math.BigDecimal;
-import java.util.List;
+import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
+import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
+import com.onixx.apolloveiculos.api.Domains.Cars.VehiclesStatus;
 
 public interface CarsRepository extends JpaRepository<Cars, Long> {
     @Query("SELECT c FROM Cars c WHERE c.id_car = :id")
@@ -54,6 +57,18 @@ public interface CarsRepository extends JpaRepository<Cars, Long> {
                                  @Param("direction") List<String> direction,
                                  @Param("vehicleCondition") String vehicleCondition,
                                  @Param("carType") VehicleTypes carType);
-    }
 
+    @Query("SELECT c FROM Cars c WHERE c.vehicleStatus = :status AND c.vehicleStatusChangedAt BETWEEN :start AND :end AND c.dt_delete IS NULL ORDER BY c.vehicleStatusChangedAt DESC")
+    List<Cars> findByStatusChangedBetweenDates(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            @Param("status") VehiclesStatus status
+    );
 
+    @Query("SELECT COUNT(c) FROM Cars c WHERE c.vehicleStatus = :status AND c.vehicleStatusChangedAt BETWEEN :start AND :end AND c.dt_delete IS NULL")
+    long countByStatusChangedBetweenDates(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            @Param("status") VehiclesStatus status
+    );
+}

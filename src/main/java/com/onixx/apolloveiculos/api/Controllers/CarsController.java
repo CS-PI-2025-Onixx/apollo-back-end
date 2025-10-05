@@ -1,25 +1,31 @@
 package com.onixx.apolloveiculos.api.Controllers;
 
-import com.onixx.apolloveiculos.api.DTO.ResponseAnyDTO;
-import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
-import com.onixx.apolloveiculos.api.Domains.Cars.VehicleTypes;
-import com.onixx.apolloveiculos.api.Domains.Cars.VehiclesStatus;
-import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarParams;
-import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarRequest;
-import com.onixx.apolloveiculos.api.Services.CarService;
-import com.onixx.apolloveiculos.api.Services.OLXIntegrationService;
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.onixx.apolloveiculos.api.DTO.ResponseAnyDTO;
+import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
+import com.onixx.apolloveiculos.api.Domains.Cars.VehiclesStatus;
+import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarParams;
+import com.onixx.apolloveiculos.api.Services.CarService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
@@ -141,4 +147,16 @@ public class CarsController {
         }
     }
 
+    @GetMapping("/cars/status")
+    public ResponseEntity<Map<VehiclesStatus, Long>> getStatusCounters(@RequestParam Long days) {
+        return ResponseEntity.ok(carService.getStatusCountersForPeriod(days));
+    }
+
+    @GetMapping("/cars/status-changed")
+    public ResponseEntity<List<Cars>> findCarsChangedToStatusInPeriod(
+        @RequestParam VehiclesStatus status,
+        @RequestParam int days) {
+            List<Cars> cars = carService.findCarsChangedToStatusInPeriod(status, days);
+            return ResponseEntity.ok(cars);
+    }
 }
