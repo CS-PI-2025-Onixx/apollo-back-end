@@ -1,5 +1,7 @@
 package com.onixx.apolloveiculos.api.Domains.Cars;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.onixx.apolloveiculos.api.Domains.Bodywork.Bodywork;
 import com.onixx.apolloveiculos.api.Domains.Colors.Colors;
@@ -18,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -117,10 +120,13 @@ public class Cars extends Standard {
     private List<Images> images;
 
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user")
-    @JoinFormula("(SELECT u.name FROM tb_users u WHERE u.id_user = id_user)")
-    private User userName;
+    @JsonIgnore
+    private User user;
+
+    @Formula("(SELECT u.name FROM tb_user u WHERE u.id_user = id_user)")
+    private String userName;
 
 
     @ElementCollection
@@ -128,6 +134,15 @@ public class Cars extends Standard {
     @Column(name = "opcional")
     @JsonManagedReference
     private List<String> opcionais;
+
+    @Column(name = "dt_sale")
+    private LocalDateTime dtSale;
+
+    @Column(name = "dt_rent")
+    private LocalDateTime dtRent;
+
+
+
 
     // Integration with OLX
 

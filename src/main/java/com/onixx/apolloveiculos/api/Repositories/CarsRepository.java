@@ -38,7 +38,9 @@ public interface CarsRepository extends JpaRepository<Cars, Long> {
             "(:#{#direction == null || #direction.isEmpty()} = true OR c.direction IN :direction) AND " +
             "(:vehicleCondition IS NULL OR c.vehicleCondition = :vehicleCondition) AND " +
             "(:carType IS NULL OR c.carType = :carType)"+
-            "AND c.dt_delete IS NULL"+
+            "AND c.dt_delete IS NULL "+
+            "AND c.dtRent IS NULL "+
+            "AND c.dtSale IS NULL"+
             " ORDER BY c.id_car DESC")
     List<Cars> findByFilters(@Param("brand") String brand,
                                  @Param("model") String model,
