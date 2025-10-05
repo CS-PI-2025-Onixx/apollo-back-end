@@ -16,14 +16,13 @@ import com.onixx.apolloveiculos.api.Domains.Transmissions.Transmissions;
 import com.onixx.apolloveiculos.api.Domains.User.User;
 import com.onixx.apolloveiculos.api.Utils.ENUM_CONDITION;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Formula;
-import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.*;
 
 import java.awt.*;
 import java.math.BigDecimal;
@@ -120,7 +119,7 @@ public class Cars extends Standard {
     private List<Images> images;
 
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user")
     @JsonIgnore
     private User user;
