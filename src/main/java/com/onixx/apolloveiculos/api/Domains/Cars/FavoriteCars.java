@@ -40,7 +40,4 @@ public class FavoriteCars {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "id_car", nullable = false)
     private Cars car;
-
-    @Column(name = "dt_created", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
 }
