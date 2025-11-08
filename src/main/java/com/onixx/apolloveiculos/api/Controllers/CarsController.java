@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.onixx.apolloveiculos.api.DTO.ResponseAnyDTO;
+import com.onixx.apolloveiculos.api.Domains.CarOperations.CarOperation;
 import com.onixx.apolloveiculos.api.Domains.Cars.Cars;
 import com.onixx.apolloveiculos.api.Domains.Cars.VehiclesStatus;
 import com.onixx.apolloveiculos.api.Domains.OLXCarRequest.OLXCarParams;
+import com.onixx.apolloveiculos.api.Services.CarOperationService;
 import com.onixx.apolloveiculos.api.Services.CarService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,9 @@ public class CarsController {
 
     @Autowired
     private CarService carService;
+
+    @Autowired
+    private CarOperationService carOperationService;
 
     @GetMapping
     public ResponseEntity<ResponseAnyDTO> findAll(
@@ -145,7 +150,7 @@ public class CarsController {
         }
     }
 
-    @GetMapping("/trade")
+    @GetMapping("/rent")
     public ResponseEntity<ResponseAnyDTO> findWithTrade() {
         try {
             List<Cars> cars = carService.findAll().stream()
@@ -182,6 +187,121 @@ public class CarsController {
             log.error("Erro ao buscar carros alterados de status: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ResponseAnyDTO(500, e.getMessage(), "Erro interno ao buscar carros por status", null));
+        }
+    }
+
+    // ==================== ENDPOINTS DE OPERAÇÕES (VENDA/ALUGUEL) ====================
+
+    @PostMapping("/{carId}/operation")
+    public ResponseEntity<ResponseAnyDTO> createOperation(
+            @PathVariable Long carId,
+            @RequestBody CarOperation carOperation) {
+        try {
+            CarOperation savedOperation = carOperationService.createOperation(carOperation, carId);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ResponseAnyDTO(201, "", "Operação registrada com sucesso", savedOperation));
+        } catch (RuntimeException e) {
+            log.error("Erro ao criar operação: ", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseAnyDTO(400, e.getMessage(), "Erro ao registrar operação", null));
+        } catch (Exception e) {
+            log.error("Erro interno ao criar operação: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseAnyDTO(500, e.getMessage(), "Erro interno ao registrar operação", null));
+        }
+    }
+
+    @GetMapping("/{carId}/operation")
+    public ResponseEntity<ResponseAnyDTO> getOperationByCarId(@PathVariable Long carId) {
+        try {
+            return carOperationService.findByCarId(carId)
+                    .map(operation -> ResponseEntity.ok(
+                            new ResponseAnyDTO(200, "", "Operação encontrada", operation)))
+                    .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(new ResponseAnyDTO(404, "", "Operação não encontrada para este veículo", null)));
+        } catch (Exception e) {
+            log.error("Erro ao buscar operação: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseAnyDTO(500, e.getMessage(), "Erro interno ao buscar operação", null));
+        }
+    }
+
+    @GetMapping("/operations")
+    public ResponseEntity<ResponseAnyDTO> getAllOperations() {
+        try {
+            List<CarOperation> operations = carOperationService.findAll();
+            return ResponseEntity.ok(new ResponseAnyDTO(200, "", "Operações encontradas", operations));
+        } catch (Exception e) {
+            log.error("Erro ao buscar operações: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseAnyDTO(500, e.getMessage(), "Erro interno ao buscar operações", null));
+        }
+    }
+
+    @GetMapping("/operations/type/{tipo}")
+    public ResponseEntity<ResponseAnyDTO> getOperationsByType(@PathVariable int tipo) {
+        try {
+            List<CarOperation> operations = carOperationService.findByTipoOperacao(tipo);
+            String tipoDesc = tipo == 0 ? "vendas" : "aluguéis";
+            return ResponseEntity.ok(
+                    new ResponseAnyDTO(200, "", "Operações de " + tipoDesc + " encontradas", operations));
+        } catch (IllegalArgumentException e) {
+            log.error("Tipo de operação inválido: ", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseAnyDTO(400, e.getMessage(), "Tipo de operação inválido", null));
+        } catch (Exception e) {
+            log.error("Erro ao buscar operações por tipo: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseAnyDTO(500, e.getMessage(), "Erro interno ao buscar operações", null));
+        }
+    }
+
+    @GetMapping("/operations/client")
+    public ResponseEntity<ResponseAnyDTO> getOperationsByClient(@RequestParam String nomeCliente) {
+        try {
+            List<CarOperation> operations = carOperationService.findByNomeCliente(nomeCliente);
+            return ResponseEntity.ok(
+                    new ResponseAnyDTO(200, "", "Operações encontradas para o cliente", operations));
+        } catch (Exception e) {
+            log.error("Erro ao buscar operações por cliente: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseAnyDTO(500, e.getMessage(), "Erro interno ao buscar operações", null));
+        }
+    }
+
+    @PutMapping("/operations/{operationId}")
+    public ResponseEntity<ResponseAnyDTO> updateOperation(
+            @PathVariable Integer operationId,
+            @RequestBody CarOperation carOperationData) {
+        try {
+            CarOperation updatedOperation = carOperationService.updateOperation(operationId, carOperationData);
+            return ResponseEntity.ok(
+                    new ResponseAnyDTO(200, "", "Operação atualizada com sucesso", updatedOperation));
+        } catch (RuntimeException e) {
+            log.error("Erro ao atualizar operação: ", e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseAnyDTO(404, e.getMessage(), "Operação não encontrada", null));
+        } catch (Exception e) {
+            log.error("Erro interno ao atualizar operação: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseAnyDTO(500, e.getMessage(), "Erro interno ao atualizar operação", null));
+        }
+    }
+
+    @DeleteMapping("/operations/{operationId}")
+    public ResponseEntity<ResponseAnyDTO> deleteOperation(@PathVariable Integer operationId) {
+        try {
+            carOperationService.deleteOperation(operationId);
+            return ResponseEntity.ok(
+                    new ResponseAnyDTO(204, "", "Operação deletada com sucesso", Collections.emptyList()));
+        } catch (RuntimeException e) {
+            log.error("Erro ao deletar operação: ", e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseAnyDTO(404, e.getMessage(), "Operação não encontrada", null));
+        } catch (Exception e) {
+            log.error("Erro interno ao deletar operação: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseAnyDTO(500, e.getMessage(), "Erro interno ao deletar operação", null));
         }
     }
 }
