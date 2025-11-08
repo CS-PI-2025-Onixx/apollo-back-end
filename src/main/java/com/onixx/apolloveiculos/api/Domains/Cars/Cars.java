@@ -3,7 +3,9 @@ package com.onixx.apolloveiculos.api.Domains.Cars;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.onixx.apolloveiculos.api.Domains.Bodywork.Bodywork;
+import com.onixx.apolloveiculos.api.Domains.CarOperations.CarOperation;
 import com.onixx.apolloveiculos.api.Domains.Colors.Colors;
 import com.onixx.apolloveiculos.api.Domains.Directions.Directions;
 import com.onixx.apolloveiculos.api.Domains.Fuels.Fuels;
@@ -118,6 +120,11 @@ public class Cars extends Standard {
     @JsonManagedReference
     private List<Images> images;
 
+    @JsonView(com.onixx.apolloveiculos.api.Utils.Views.AdminView.class)
+    @OneToOne(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private CarOperation carOperation;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user")
@@ -145,20 +152,27 @@ public class Cars extends Standard {
 
     // Integration with OLX
 
+    @JsonView(com.onixx.apolloveiculos.api.Utils.Views.AdminView.class)
     @Column(name = "olx_ad_id")
     private String olxAdId;
 
+    @JsonView(com.onixx.apolloveiculos.api.Utils.Views.AdminView.class)
     @Column(name = "olx_published")
     private Boolean olxPublished = false;
 
+    @JsonView(com.onixx.apolloveiculos.api.Utils.Views.AdminView.class)
     @Column(name = "olx_published_at")
     private LocalDateTime olxPublishedAt;
 
+    @JsonView(com.onixx.apolloveiculos.api.Utils.Views.AdminView.class)
     @Column(name = "olx_error")
     private String olxError;
 
+    @JsonView(com.onixx.apolloveiculos.api.Utils.Views.AdminView.class)
     @Column(name = "olx_update_at")
     private LocalDateTime olxUpdatedAt;
+
+    @JsonView(com.onixx.apolloveiculos.api.Utils.Views.AdminView.class)
     @Column(name = "olx_deleted_at")
     private LocalDateTime olxDeletedAt;
 }
