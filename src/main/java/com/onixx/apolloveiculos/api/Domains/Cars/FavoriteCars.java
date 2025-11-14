@@ -19,6 +19,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.onixx.apolloveiculos.api.Domains.Standard.Standard;
 
 @Entity
 @Table(name = "tb_favorite_cars")
@@ -27,7 +28,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class FavoriteCars {
+public class FavoriteCars extends Standard{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_favorite_car")
