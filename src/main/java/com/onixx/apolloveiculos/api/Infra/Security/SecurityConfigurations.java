@@ -54,6 +54,14 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
 
                         .requestMatchers(HttpMethod.PUT, "/user/edit").authenticated()
+
+                        /* Operações de Carros - Apenas Admin pode gerenciar */
+                        .requestMatchers(HttpMethod.POST, "/cars/*/operation").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/cars/operations/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/cars/*/operation").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/cars/operations/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/cars/operations/**").hasRole("ADMIN")
+                        .requestMatchers("/operations/**").hasRole("ADMIN")
                         /*Admin Routes */
                         .requestMatchers(HttpMethod.POST, "/motors/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/motors/**").hasRole("ADMIN")
@@ -92,7 +100,7 @@ public class SecurityConfigurations {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://apollo-front-end.vercel.app"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://apollo-front-end.vercel.app", "https://sandbox.apollo.tekobit.com.br"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

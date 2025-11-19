@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.SQLDelete;
 
 @Entity
@@ -26,5 +27,6 @@ public class Images extends Standard {
     @JoinColumn(name = "id_car", nullable = false)
     @JsonIgnore
     @JsonBackReference
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private Cars car;
 }
